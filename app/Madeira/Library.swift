@@ -10,7 +10,12 @@ import Metal
 /// device's language, from Localizable.xcstrings; English when the catalog lacks it.
 /// Texts written straight into Text("...")/Button("...") are looked up by SwiftUI already.
 func L(_ text: String) -> String {
-    Bundle.main.localizedString(forKey: text, value: text, table: "Localizable")
+    MadeiraLanguage.current.localized(text)
+}
+
+/// Formats translated text built outside SwiftUI. Interpolate display values as strings.
+func LF(_ format: String, _ values: String...) -> String {
+    String(format: L(format), arguments: values)
 }
 
 // ============================================================================
@@ -1663,7 +1668,7 @@ final class LibraryModel: ObservableObject {
     /// are still there and init_registry aborts on "\Registry". Madeira asks for
     /// a restart instead. MADEIRA_ONE_SESSION_PER_RUN=0 lets the launch go ahead.
     static var sessionsThisRun = 0
-    static let restartMessage = L("Restart Madeira to start another game: swipe Madeira away in the app switcher, then open it again.")
+    static var restartMessage: String { L("Restart Madeira to start another game: swipe Madeira away in the app switcher, then open it again.") }
     @Published var restartNotice: String? { didSet { if restartNotice != nil { preparing = nil } } }
     /// CS_DEBUGGED is set but no debugger is attached (JIT was enabled outside
     /// Madeira): the text of the alert that offers Madeira's own Enable JIT.
@@ -3526,6 +3531,9 @@ struct LibraryView: View {
             if settingsShow("ready to play", "JIT", "Memory+", "StikDebug", "status") {
                 Section { LibraryStatus().listRowBackground(Color.clear) }
             }
+            if settingsShow("interface language", "language", "界面语言", "语言", "简体中文") {
+                Section { MadeiraLanguagePicker() }
+            }
             if settingsShow("JIT", "StikDebug", "built-in", "pairing", "LocalDevVPN") {
                 JITSettingsSection()
             }
@@ -4026,7 +4034,7 @@ struct LibraryDetail: View {
     /// "None", or how many keys this game's own config sets.
     static func configSummary(_ config: String?) -> String {
         let count = MadeiraConfig.parse(config ?? "").count
-        return count == 0 ? "None" : count == 1 ? "1 setting" : "\(count) settings"
+        return count == 0 ? L("None") : count == 1 ? L("1 setting") : LF("%@ settings", String(count))
     }
     private func start() {
         guard !leaving, !missingLocalExecutable else { return }
@@ -4058,10 +4066,10 @@ struct LibraryDetail: View {
                 error = "This game's download has not finished. Resume it and wait for it to complete before playing."; return
             }
             if EALibrary.shared.installed[offer] == nil {
-                error = "This EA game is no longer installed. Install it again from the EA app section."; return
+                error = L("This EA game is no longer installed. Install it again from the EA app section."); return
             }
             if !EALibrary.shared.signedIn {
-                error = "Sign in to EA in Settings › EA app first. An EA game needs the sign-in to get its licence and start."; return
+                error = L("Sign in to EA in Settings › EA app first. An EA game needs the sign-in to get its licence and start."); return
             }
         }
         // An Epic game starts once its files are complete (EpicLibrary).
@@ -4166,13 +4174,13 @@ struct LibraryDetail: View {
     private func summary(_ page: Page) -> String? {
         switch page {
         case .display: return entry.metalFXUpscale.map { "\(entry.resolution) · MetalFX \($0 == 2 ? "2" : "1.5")×" } ?? entry.resolution
-        case .controls: return entry.controllerMode == "keys" ? "Keyboard and mouse" : entry.controllerMode == "dinput" ? "XInput and DirectInput" : nil
+        case .controls: return entry.controllerMode == "keys" ? L("Keyboard and mouse") : entry.controllerMode == "dinput" ? L("XInput and DirectInput") : nil
         case .launch: return entry.usesLaunchOptions ? (entry.runsInDesktop ? L("Wine desktop") : L("Directly")) : nil
-        case .steam: return entry.startsSteamGameDirectly ? "The game" : "Madeira Dock"
+        case .steam: return entry.startsSteamGameDirectly ? L("The game") : "Madeira Dock"
         case .advanced: return Self.configSummary(bcd.configText)   // madeira-bcd: the game's own config file
         case .iniFiles:
             let count = GameIniFiles.files(entry.windowsPath).count
-            return count == 0 ? nil : count == 1 ? "1 file" : "\(count) files"
+            return count == 0 ? nil : count == 1 ? L("1 file") : LF("%@ files", String(count))
         default: return nil
         }
     }
@@ -4358,7 +4366,7 @@ struct LibraryDetail: View {
             // GPUCards.swift: a chosen card replaces the two NVIDIA switches below.
             Picker(selection: Binding(get: { bcd.gpuCard }, set: { id in bcd.gpuCard = id; LibraryPrefs.setGPUCard(id, for: entry.windowsPath) })) {
                 Text("Automatic").tag("")
-                ForEach(GPUCards.all, id: \.id) { Text($0.title).tag($0.id) }
+                ForEach(GPUCards.all, id: \.id) { Text(L($0.title)).tag($0.id) }
             } label: {
                 compatLabel("Graphics card the game sees", "For games that refuse this GPU or only run on cards they know")
             }
@@ -4403,7 +4411,7 @@ struct LibraryDetail: View {
             Text("Applies at the next launch.")
         }
     }
-    private func compatLabel(_ title: String, _ note: String) -> some View {
+    private func compatLabel(_ title: LocalizedStringKey, _ note: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
             Text(note).font(.caption).foregroundStyle(.secondary)
@@ -4864,11 +4872,11 @@ struct ControllerBindsPage: View {
     static func describe(_ action: ControlAction, input: String) -> String {
         switch action {
         case .none:            return input == "RS" ? "Mouse" : "Nothing"
-        case .mouseLeft:       return "Left click"
-        case .mouseRight:      return "Right click"
+        case .mouseLeft:       return L("Left click")
+        case .mouseRight:      return L("Right click")
         case .joystickWASD:    return "WASD"
-        case .joystickArrows:  return "Arrow keys"
-        case .keyboardToggle:  return "Show keyboard"
+        case .joystickArrows:  return L("Arrow keys")
+        case .keyboardToggle:  return L("Show keyboard")
         case .pad(let n):      return n
         case .key(let vk):     return keyName(vk)
         }
@@ -4883,13 +4891,13 @@ struct ControllerBindsPage: View {
         case 0x11: return "Ctrl"
         case 0x12: return "Alt"
         case 0x08: return "Backspace"
-        case 0x14: return "Caps Lock"
+        case 0x14: return L("Caps Lock")
         case 0x2D: return "Insert"
         case 0x2E: return "Delete"
         case 0x24: return "Home"
         case 0x23: return "End"
-        case 0x21: return "Page Up"
-        case 0x22: return "Page Down"
+        case 0x21: return L("Page Up")
+        case 0x22: return L("Page Down")
         case 0x70...0x7B: return "F\(vk - 0x6F)"
         case 0x60...0x69: return "Numpad \(vk - 0x60)"
         case 0x6A: return "Numpad *"
@@ -5160,19 +5168,19 @@ struct RuntimeMemorySyncSettings: View {
     static let donorPoolChoices = [0, 2048, 4096, 6144]   // ml1150: the donor pool, 512 MB regions
     /// The stored value "" (no key) and "classic" are the same rules, unless
     /// madeira.cfg has swap-mode = 2 (then no key means broad, ml1257).
-    static let coverageChoices: [(String, String)] = [
+    static var coverageChoices: [(String, String)] { [
         ("", L("Large allocations (8 MB+)")), ("blocks", L("All allocations of 1 MB+")), ("wide", L("1 MB+ and overflow")),
         ("broad", L("Whole reservations 4 MB+ (broad)")),
-    ]
+    ] }
     @State private var poolMB = Self.intKey("pool")
     @State private var vramMB = Self.intKey("vram-mb")
     @State private var swapMB = Self.intKey("swap-mb")
     @State private var donorPoolMB = Self.intKey("donor-pool-mb")
     @State private var coverage = Self.currentCoverage()
     @State private var wow64 = MadeiraConfig.get("swap-wow64") ?? ""
-    static let wow64Choices: [(String, String)] = [
-        ("", "Donor RAM only"), ("1", "Donor RAM, then the swap file"), ("2", "Never tiered (RAM only)"),
-    ]
+    static var wow64Choices: [(String, String)] { [
+        ("", L("Donor RAM only")), ("1", L("Donor RAM, then the swap file")), ("2", L("Never tiered (RAM only)")),
+    ] }
     @State private var engine = SyncEngine.current
     @State private var eco = MadeiraConfig.bool("eco", default: false)
     @State private var changed = false
@@ -5221,8 +5229,8 @@ struct RuntimeMemorySyncSettings: View {
                 if !Self.coverageChoices.contains(where: { $0.0 == coverage }) { Text(coverage).tag(coverage) }
             }
             .disabled(swapMB == 0)
-            mbPicker("Donor pool", key: "donor-pool-mb", value: $donorPoolMB, choices: Self.donorPoolChoices,
-                     zero: "Off", label: Self.gb)
+            mbPicker(L("Donor pool"), key: "donor-pool-mb", value: $donorPoolMB, choices: Self.donorPoolChoices,
+                     zero: L("Off"), label: Self.gb)
                 .disabled(swapMB == 0)
             // ml2021: a 32-bit program's memory takes donor RAM but never the swap file unless asked
             // (madeira.cfg swap-wow64, virtual_ios.c ios_swap_wow64_policy).
@@ -5314,12 +5322,12 @@ struct GraphicsSettings: View {
     /// Bumped when a Settings sheet closes, so the rows re-read madeira.cfg.
     var refresh = 0
 
-    static let d3d9Choices: [(String, String)] = [
+    static var d3d9Choices: [(String, String)] { [
         ("", L("DXMT (default)")), ("native", L("DXMT native frontend (32-bit)")), ("wined3d", L("Wine wined3d on OpenGL (Zink)")),
-    ]
-    static let d3d11Choices: [(String, String)] = [("", L("DXMT (default)")), ("dxvk", L("DXVK on Vulkan (experimental)"))]
-    static let d3d12Choices: [(String, String)] = [("", L("madeira-d3d12 (default)")), ("vkd3d", "vkd3d-proton on Vulkan")]
-    static let vulkanChoices: [(String, String)] = [("", L("Automatic")), ("moltenvk", "MoltenVK"), ("kosmickrisp", "KosmicKrisp")]
+    ] }
+    static var d3d11Choices: [(String, String)] { [("", L("DXMT (default)")), ("dxvk", L("DXVK on Vulkan (experimental)"))] }
+    static var d3d12Choices: [(String, String)] { [("", L("madeira-d3d12 (default)")), ("vkd3d", L("vkd3d-proton on Vulkan"))] }
+    static var vulkanChoices: [(String, String)] { [("", L("Automatic")), ("moltenvk", "MoltenVK"), ("kosmickrisp", "KosmicKrisp")] }
 
     static func bundled(_ path: String) -> Bool {
         FileManager.default.fileExists(atPath: Bundle.main.bundleURL.appendingPathComponent(path).path)
@@ -5500,13 +5508,13 @@ struct OverlayStyleSettings: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Overlay style").font(.subheadline.weight(.semibold)).padding(.top, 4)
             Picker("Layout", selection: $layout) {
-                ForEach(OverlayStyle.layouts, id: \.id) { Text($0.name).tag($0.id) }
+                ForEach(OverlayStyle.layouts, id: \.id) { Text(L($0.name)).tag($0.id) }
             }.pickerStyle(.segmented)
             LabeledContent("Size") { Slider(value: $scale, in: 0.6...1.8, step: 0.05) }
             LabeledContent("Opacity") { Slider(value: $opacity, in: 0.3...1) }
             LabeledContent("Background") {
                 Picker("Background", selection: $background) {
-                    ForEach(OverlayStyle.backgrounds, id: \.id) { Text($0.name).tag($0.id) }
+                    ForEach(OverlayStyle.backgrounds, id: \.id) { Text(L($0.name)).tag($0.id) }
                 }.pickerStyle(.segmented).frame(maxWidth: 220)
             }
             Toggle("Labels", isOn: $labels)
@@ -5993,7 +6001,7 @@ struct LibraryHUD: View {
                 // Glass or an opaque disc (TouchControlStyle); the same choice as Settings › Appearance.
                 LabeledContent("Button style") {
                     Picker("Button style", selection: $controlStyle) {
-                        ForEach(TouchControlStyle.styles, id: \.id) { Text($0.name).tag($0.id) }
+                        ForEach(TouchControlStyle.styles, id: \.id) { Text(L($0.name)).tag($0.id) }
                     }.pickerStyle(.segmented).frame(maxWidth: 220)
                 }
                 Button("Edit controls", systemImage: "slider.horizontal.3") { controls.visible = true; controls.editing = true; model.menu = false }
@@ -6035,7 +6043,7 @@ struct LibraryHUD: View {
                 Toggle("Performance overlay", isOn: $model.performance)
                 if model.performance {
                     ForEach(OverlayStyle.fields, id: \.self) { field in
-                        Toggle(field, isOn: Binding(get: { model.overlayFields.contains(field) }, set: { on in
+                        Toggle(L(field), isOn: Binding(get: { model.overlayFields.contains(field) }, set: { on in
                             model.overlayFields.removeAll { $0 == field }; if on { model.overlayFields.append(field) }
                         })).font(.subheadline)
                     }

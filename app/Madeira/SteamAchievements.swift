@@ -324,7 +324,8 @@ final class AchievementWatcher {
         let (achievement, appID) = waiting.removeFirst()
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
             .first(where: { $0.activationState == .foregroundActive }) ?? UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-        let host = UIHostingController(rootView: AchievementBannerView(achievement: achievement, appID: appID))
+        let host = UIHostingController(rootView: AchievementBannerView(achievement: achievement, appID: appID)
+            .environment(\.locale, MadeiraLanguage.current.locale))
         host.view.backgroundColor = .clear
         let banner = PassthroughWindow(windowScene: scene)
         banner.frame = scene.coordinateSpace.bounds

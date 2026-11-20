@@ -257,7 +257,7 @@ struct EpicGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -302,14 +302,14 @@ struct EpicDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting to start…"
+        case .queued: return L("Waiting to start…")
         case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
-            case .preparing: return "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .preparing: return L("Preparing download…")
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(epicBytes(p.doneBytes)) of \(epicBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {

@@ -19,7 +19,12 @@ struct ConfigOption: Identifiable {
     let choices: [Choice]
     let sources: [String]
     var id: String { key }
-    var displayTitle: String { title.isEmpty ? key : title }
+    var displayTitle: String { title.isEmpty ? key : L(title) }
+
+    func matches(_ query: String) -> Bool {
+        [key, title, note, category, displayTitle, L(note), L(category)]
+            .contains { $0.localizedCaseInsensitiveContains(query) }
+    }
 
     init(key: String, title: String, kind: Kind, defaultValue: String, category: String, note: String,
          choices: [(String, String)], sources: [String]) {
@@ -50,7 +55,7 @@ struct AllSettingsView: View {
     @State private var newValue = ""
 
     private func matches(_ o: ConfigOption) -> Bool {
-        search.isEmpty || [o.key, o.title, o.note, o.category].contains { $0.localizedCaseInsensitiveContains(search) }
+        search.isEmpty || o.matches(search)
     }
     private var otherKeys: [String] {
         values.keys.filter { !ConfigCatalog.keys.contains($0) && (search.isEmpty || $0.localizedCaseInsensitiveContains(search)) }.sorted()
@@ -83,7 +88,7 @@ struct AllSettingsView: View {
                         $0.category == category && !RuntimeMemorySyncSettings.featuredKeys.contains($0.key) && matches($0)
                     }
                     if !options.isEmpty {
-                        Section(category) {
+                        Section(L(category)) {
                             ForEach(options) { ConfigOptionRow(option: $0, value: binding($0.key)) }
                         }
                     }
@@ -135,7 +140,7 @@ struct ConfigOptionRow: View {
         VStack(alignment: .leading, spacing: 4) {
             control
             if !option.note.isEmpty {
-                Text(option.note).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Text(L(option.note)).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             HStack(spacing: 8) {
                 if !option.title.isEmpty { Text(option.key).font(.caption2.monospaced()) }
@@ -160,7 +165,7 @@ struct ConfigOptionRow: View {
             }
         case .choice:
             Picker(option.displayTitle, selection: Binding(get: { value ?? "" }, set: { value = $0.isEmpty ? nil : $0 })) {
-                ForEach(option.choices, id: \.self) { Text($0.label).tag($0.value) }
+                ForEach(option.choices, id: \.self) { Text(L($0.label)).tag($0.value) }
                 if let v = value, !option.choices.contains(where: { $0.value == v }) { Text("Custom: \(v)").tag(v) }
             }
         case .int, .text:
@@ -195,7 +200,7 @@ struct SettingsSearchResults: View {
     private var hits: [ConfigOption] {
         ConfigCatalog.generated.filter { o in
             !RuntimeMemorySyncSettings.featuredKeys.contains(o.key)
-                && [o.key, o.title, o.note, o.category].contains { $0.localizedCaseInsensitiveContains(query) }
+                && o.matches(query)
         }
     }
     private func binding(_ key: String) -> Binding<String?> {

@@ -463,7 +463,7 @@ struct IniFileEditor: View {
 
     private func load() {
         guard let data = try? Data(contentsOf: url), let decoded = IniFileText(data: data) else {
-            error = "This file could not be read. It may have been moved or deleted."
+            error = L("This file could not be read. It may have been moved or deleted.")
             return
         }
         original = data; encoding = decoded
@@ -478,7 +478,7 @@ struct IniFileEditor: View {
         guard let document, let encoding, let out = encoding.data(document.text) else { return }
         // A game running (or another app) may have written it since it opened here.
         if let now = try? Data(contentsOf: url), now != original {
-            error = "The file changed while it was open here, so nothing was saved. Go back and open it again."
+            error = L("The file changed while it was open here, so nothing was saved. Go back and open it again.")
             return
         }
         do {

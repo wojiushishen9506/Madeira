@@ -563,7 +563,7 @@ struct SteamGamesSection: View {
                     // A line here, not an alert: an alert would close a page that is open.
                     if SteamOwnedLibrary.cloudEnabled, !steam.cloudUndecided.isEmpty {
                         let names = steam.cloudUndecided.compactMap { id in model.games.first { $0.id == id }?.name }
-                        Label("Steam Cloud: \(names.joined(separator: ", ")) \(names.count == 1 ? "has" : "have") saves that differ from this device's. Open the game's details to choose which to keep.",
+                        Label("Steam Cloud saves differ from this device's for: \(names.joined(separator: ", ")). Open the game's details to choose which to keep.",
                               systemImage: "exclamationmark.icloud")
                             .font(.footnote).foregroundStyle(.orange)
                     }
@@ -908,21 +908,21 @@ struct SteamDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting to start…"
+        case .queued: return L("Waiting to start…")
         case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
             case .preparing:
                 switch p.step {
-                case .start: return "Preparing download…"
-                case .fileList: return "Getting the game's file list from Steam…"
-                case .files: return "Looking over the game's files…"
+                case .start: return L("Preparing download…")
+                case .fileList: return L("Getting the game's file list from Steam…")
+                case .files: return L("Looking over the game's files…")
                 }
             case .checking:
                 let done = p.checkTotal > 0 ? Int(Double(p.checkDone) / Double(p.checkTotal) * 100) : 0
-                return "Checking files already there: \(done)% · \(formatBytes(Int64(p.checkDone))) of \(formatBytes(Int64(p.checkTotal)))"
-            case .finishing: return "Finishing…"
+                return LF("Checking files already there: %@%% · %@ of %@", String(describing: done), String(describing: formatBytes(Int64(p.checkDone))), String(describing: formatBytes(Int64(p.checkTotal))))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(formatBytes(Int64(p.doneBytes))) of \(formatBytes(Int64(p.totalBytes)))"]
                 // Files already on the drive are checked, not downloaded again.
@@ -1065,9 +1065,9 @@ struct SteamBranchPicker: View {
         }
         guard current != SteamAppInfo.publicBranch else { return nil }
         if branches.contains(where: { $0.name == current && $0.passwordRequired }), SteamBranch.code(appID) == nil {
-            return "This beta needs its beta code."
+            return L("This beta needs its beta code.")
         }
-        return "A beta build: it can be unstable, and its saves may not work on the public build."
+        return L("A beta build: it can be unstable, and its saves may not work on the public build.")
     }
 
     private func check() {
@@ -1335,7 +1335,7 @@ struct SteamCloudQuitRow: View {
                 case .failed(let message):
                     Text("Not uploaded, Madeira stays open: \(message)").font(.callout).foregroundStyle(.orange)
                 case .conflict(let count):
-                    Text("Not uploaded: \(count) save\(count == 1 ? " was" : "s were") also changed in Steam Cloud, by another device or with no record of a sync here. Uploading would replace the cloud's \(count == 1 ? "copy" : "copies").")
+                    Text("Not uploaded: Steam Cloud changed these saves (\(String(count)) files). There may be changes from another device or no local sync record. Uploading would overwrite the cloud copies.")
                         .font(.callout).foregroundStyle(.orange)
                     Button("Replace the Steam Cloud saves and close", role: .destructive) { confirmReplace = true }
                         .confirmationDialog("Replace the Steam Cloud saves with this device's?", isPresented: $confirmReplace, titleVisibility: .visible) {
@@ -1431,12 +1431,14 @@ struct SteamCloudSection: View {
                   : "\(Self.saves(conflicts.count)) differ between Steam Cloud and this device", systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.orange)
             ForEach(conflicts) { entry in
+                let cloudNewer = entry.kind != .cloudOnly && entry.cloudTime > entry.localTime ? L(" · newer") : ""
+                let localNewer = entry.localTime > entry.cloudTime ? L(" · newer") : ""
                 VStack(alignment: .leading, spacing: 3) {
                     Text(entry.name).font(.subheadline.weight(.medium))
-                    Text("Steam Cloud: \(Self.when(entry.cloudTime)) · \(Self.size(entry.cloudSize))\(entry.kind != .cloudOnly && entry.cloudTime > entry.localTime ? " · newer" : "")")
+                    Text("Steam Cloud: \(Self.when(entry.cloudTime)) · \(Self.size(entry.cloudSize))\(cloudNewer)")
                         .font(.caption).foregroundStyle(.secondary)
                     Text(entry.kind == .cloudOnly ? "This device: missing (it was synced here before)"
-                         : "This device: \(Self.when(entry.localTime)) · \(Self.size(entry.localSize))\(entry.localTime > entry.cloudTime ? " · newer" : "")")
+                         : "This device: \(Self.when(entry.localTime)) · \(Self.size(entry.localSize))\(localNewer)")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }

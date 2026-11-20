@@ -488,17 +488,17 @@ struct AppleSignInSheet: View {
 
     private func instructions(for prompt: TwoFactorPrompt) -> String {
         switch prompt.method {
-        case .device: return "Enter the code Apple just sent to your trusted devices."
+        case .device: return L("Enter the code Apple just sent to your trusted devices.")
         case .sms: return "Enter the code Apple texted to \(prompt.selectedNumber?.number ?? "your phone")."
-        case .choose: return "Choose how Apple should send your verification code."
+        case .choose: return L("Choose how Apple should send your verification code.")
         }
     }
 
     private func status(for answer: TwoFactorAnswer, in prompt: TwoFactorPrompt) -> String {
         switch answer {
-        case .code: return "Checking the code…"
-        case .resend: return "Requesting a new code…"
-        case .devices: return "Sending a code to your devices…"
+        case .code: return L("Checking the code…")
+        case .resend: return L("Requesting a new code…")
+        case .devices: return L("Sending a code to your devices…")
         case .sms(let id): return "Texting a code to \(prompt.numbers.first { $0.id == id }?.number ?? "your phone")…"
         }
     }

@@ -310,11 +310,11 @@ final class SteamWorkshopModel: ObservableObject {
         let eresult: Int32
         var errorDescription: String? {
             switch eresult {
-            case 2: return "Steam could not do this right now (generic failure). Try again later."
-            case 9: return "Steam does not know this item. It may have been removed."
-            case 15: return "Steam refused: this item is not available to this account."
-            case 25: return "Steam's subscription limit was reached."
-            case 84: return "Steam is limiting requests. Wait a minute and try again."
+            case 2: return L("Steam could not do this right now (generic failure). Try again later.")
+            case 9: return L("Steam does not know this item. It may have been removed.")
+            case 15: return L("Steam refused: this item is not available to this account.")
+            case 25: return L("Steam's subscription limit was reached.")
+            case 84: return L("Steam is limiting requests. Wait a minute and try again.")
             default: return "Steam refused the request (error \(eresult))."
             }
         }
@@ -382,10 +382,10 @@ struct SteamWorkshopItemRow: View {
     }
 
     private var caption: String {
-        if item.isCollection { return "Collection: subscribe to its items on Steam" }
-        if item.banned { return "Removed by Steam" }
-        if item.result != 1 && item.result != 0 { return "Not available on Steam" }
-        if !item.isContent { return "Not game content" }
+        if item.isCollection { return L("Collection: subscribe to its items on Steam") }
+        if item.banned { return L("Removed by Steam") }
+        if item.result != 1 && item.result != 0 { return L("Not available on Steam") }
+        if !item.isContent { return L("Not game content") }
         let record = model.record(appID)
         if model.isOnDisk(item, appID: appID) {
             let size = record.entries[item.id]?.size ?? 0

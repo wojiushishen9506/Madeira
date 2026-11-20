@@ -291,7 +291,7 @@ struct ItchDownloadStatus: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .unpacking ? "Unpacking" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -305,12 +305,12 @@ struct ItchDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting for the other itch.io download to finish…"
+        case .queued: return L("Waiting for the other itch.io download to finish…")
         case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
-            case .preparing: return "Finding the game's Windows download…"
+            case .preparing: return L("Finding the game's Windows download…")
             case .unpacking: return p.totalBytes > 0 ? "Unpacking… \(Int(p.fraction * 100))%" : "Unpacking…"
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(itchBytes(p.doneBytes)) of \(itchBytes(p.totalBytes))"]

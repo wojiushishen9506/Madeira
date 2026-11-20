@@ -253,7 +253,7 @@ struct EAGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -302,14 +302,14 @@ struct EADownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting for the other EA download to finish…"
+        case .queued: return L("Waiting for the other EA download to finish…")
         case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
             case .preparing: return p.step.map { $0 + "…" } ?? "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(eaBytes(p.doneBytes)) of \(eaBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {

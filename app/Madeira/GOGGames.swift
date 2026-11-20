@@ -256,7 +256,7 @@ struct GOGGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -305,14 +305,14 @@ struct GOGDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting for the other GOG download to finish…"
+        case .queued: return L("Waiting for the other GOG download to finish…")
         case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
             case .preparing: return p.step.map { $0 + "…" } ?? "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(gogBytes(p.doneBytes)) of \(gogBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {
@@ -451,7 +451,7 @@ struct GOGSetupRows: View {
 
     static func text(_ state: GOGSetup.State) -> String {
         switch state {
-        case .pending: return "Installs at the next start"
+        case .pending: return L("Installs at the next start")
         case .done: return "Installed"
         case .failed(let code): return "Failed (code \(code)); Repair runs it again"
         }

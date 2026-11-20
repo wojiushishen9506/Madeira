@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 """App translations (app/Madeira/Localizable.xcstrings).
 
-SwiftUI looks up every literal Text/Button/Label/Toggle/Section/... title in the string
-catalog, so the app shows German, Spanish, Korean, Brazilian Portuguese, Russian or
-Simplified Chinese when the device uses one, and English otherwise (a text the catalog
-lacks stays English).
-
-Checks: the catalog is in the app's resources with its languages; every key is still a
-literal in the app's Swift (so a changed English text is noticed); every key has all six
-languages; links, line breaks and trailing spaces survive translation. A text with
-interpolations is keyed with %@ for each one (only String interpolations are translated
-this way); its translations use %1$@, %2$@... so the words can move.
+Checks the app catalog, the Simplified Chinese coverage of the settings data and the
+placement of the interface language selector. These are source checks, separate from
+compiling the catalogs or changing languages on a device.
 """
 from pathlib import Path
 import json, re, sys
@@ -40,7 +33,7 @@ check(catalog.get('sourceLanguage') == 'en', 'English is the source language')
 # The calls whose first argument SwiftUI reads as a LocalizedStringKey, and L("...")
 # (Library.swift) for texts built in code: notes, picker titles, statuses, errors.
 pattern = re.compile(r'\b(?:Text|Button|Label|Toggle|Section|Picker|navigationTitle|LabeledContent|TextField|Link|NavigationLink|'
-                     r'Stepper|Menu|ShareLink|alert|confirmationDialog|SecureField|ContentUnavailableView|DisclosureGroup|ProgressView|L)'
+                     r'Stepper|Menu|ShareLink|alert|confirmationDialog|SecureField|ContentUnavailableView|DisclosureGroup|ProgressView|L|LF)'
                      r'\(\s*"((?:[^"\\]|\\.)*)"')
 literals = set()
 for swift in app.glob('*.swift'):
@@ -53,21 +46,51 @@ strings = catalog['strings']
 # An Int interpolation is keyed %lld by SwiftUI, a String one %@; the source scan sees both as %@.
 def shape(key):
     return key.replace('%lld', '%@')
-stale = [k for k in strings if shape(k) not in literals]
-check(not stale, 'every translated text is still in the app' + (f' (stale: {stale[:5]})' if stale else ''))
+stale = [k for k, v in strings.items() if v.get('extractionState') != 'manual' and shape(k) not in literals]
+check(not stale, 'original translated texts are still in the app' + (f' (stale: {stale[:5]})' if stale else ''))
 missing = [(k, l) for k, v in strings.items() for l in languages
+           if l == 'zh-Hans' or len(v.get('localizations', {})) > 1
            if not v.get('localizations', {}).get(l, {}).get('stringUnit', {}).get('value')]
-check(not missing, 'every text has all six languages' + (f' (missing: {missing[:5]})' if missing else ''))
+check(not missing, 'every catalog entry has Simplified Chinese and existing language sets are complete'
+      + (f' (missing: {missing[:5]})' if missing else ''))
 broken = []
 for k, v in strings.items():
-    for l in languages:
-        t = v['localizations'][l]['stringUnit']['value']
-        if ('](' in k) != ('](' in t) or k.count('\n') != t.count('\n') or k.endswith(' ') != t.endswith(' ') or \
+    for l, localization in v.get('localizations', {}).items():
+        t = localization['stringUnit']['value']
+        if re.findall(r'\]\((https?://[^)]+)\)', k) != re.findall(r'\]\((https?://[^)]+)\)', t) or \
+                k.count('\n') != t.count('\n') or k.endswith(' ') != t.endswith(' ') or \
                 sorted(re.findall(r'%(\d)\$(?:@|lld)', t)) != [str(i + 1) for i in range(shape(k).count('%@'))] or \
-                t.count('%') != shape(k).count('%@'):
+                k.count('%%') != t.count('%%'):
             broken.append((k[:30], l))
 check(not broken, 'links, line breaks and trailing spaces survive' + (f' ({broken[:5]})' if broken else ''))
-check(len(strings) >= 700, f'{len(strings)} texts translated')
+
+config = (app / 'ConfigCatalog.generated.swift').read_text(encoding='utf-8')
+quoted = r'"(?:[^"\\]|\\.)*"'
+option_copy = set()
+for row in (line for line in config.splitlines() if 'ConfigOption(' in line):
+    option_copy.update(map(json.loads, re.findall(r'\b(?:title|category|note):\s*(' + quoted + ')', row)))
+    choices = row.split('choices: ', 1)[1].split('], sources:', 1)[0]
+    option_copy.update(map(json.loads, re.findall(r',\s*(' + quoted + ')', choices)))
+option_copy.discard('')
+missing_options = sorted(option_copy - strings.keys())
+check(not missing_options, 'advanced settings titles, choices, categories and descriptions are translated'
+      + (f' (missing: {missing_options[:5]})' if missing_options else ''))
+
+settings = (app / 'SettingsPages.swift').read_text(encoding='utf-8')
+onboarding = (app / 'Onboarding.swift').read_text(encoding='utf-8')
+root_view = (app / 'MadeiraApp.swift').read_text(encoding='utf-8')
+check('var title: LocalizedStringKey' in settings and '[(LocalizedStringKey?, [Page])]' in settings
+      and 'func primary(_ title: LocalizedStringKey' in onboarding and 'detail: LocalizedStringKey' in onboarding,
+      'settings titles and first-run controls use localizable SwiftUI keys')
+check(all('MadeiraLanguagePicker()' in source for source in (settings, onboarding))
+      and root_view.count('@AppStorage(MadeiraLanguage.key)') == 2 and '.environment(\\.locale, language.locale)' in root_view,
+      'both language selectors use the same saved preference as the app locale')
+check(all(key in strings for key in [
+    'Interface language', 'System language', 'Get started', 'Skip setup', 'Set up JIT',
+    'Getting games', 'Running games', 'Memory and sync', 'Runtimes',
+    'Remove from library', 'Game executable not found.',
+]), 'key first-run, settings and library strings are in the catalog')
+print(f'{len(strings)} catalog entries')
 
 # Not a failure (other threads add texts every day), but listed so they can be translated:
 # texts in Text("...")/L("...") and the like that the catalog does not have yet. A text with

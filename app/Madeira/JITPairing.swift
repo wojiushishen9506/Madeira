@@ -133,11 +133,11 @@ import UserNotifications
         phase = .pin(pin)
         log("code shown")
         if #available(iOS 26.0, *), let task = continued as? BGContinuedProcessingTask {
-            task.updateTitle("Pairing code \(pin)", subtitle: "Enter it on this \(Self.deviceKind) to pair with Madeira")
+            task.updateTitle(LF("Pairing code %@", pin), subtitle: LF("Enter it on this %@ to pair with Madeira", Self.deviceKind))
             task.progress.completedUnitCount = 1
         }
         if UIApplication.shared.applicationState != .active {
-            notify("Madeira pairing code: \(pin)", body: "Enter this code on your \(Self.deviceKind) to finish pairing.")
+            notify(LF("Madeira pairing code: %@", pin), body: LF("Enter this code on your %@ to finish pairing.", Self.deviceKind))
         }
     }
 
@@ -260,8 +260,8 @@ import UserNotifications
             guard ok else { log("register refused"); backgroundLimited = true; return }
             registered = identifier
         }
-        let request = BGContinuedProcessingTaskRequest(identifier: identifier, title: "Pairing with Madeira",
-                                                       subtitle: "Settings › Privacy & Security › Developer Mode")
+        let request = BGContinuedProcessingTaskRequest(identifier: identifier, title: L("Pairing with Madeira"),
+                                                       subtitle: L("Settings › Privacy & Security › Developer Mode"))
         request.strategy = .fail
         do {
             try BGTaskScheduler.shared.submit(request)
@@ -278,7 +278,7 @@ import UserNotifications
         continued = task
         task.progress.totalUnitCount = 2
         if case .pin(let pin) = phase {
-            task.updateTitle("Pairing code \(pin)", subtitle: "Enter it on this \(Self.deviceKind) to pair with Madeira")
+            task.updateTitle(LF("Pairing code %@", pin), subtitle: LF("Enter it on this %@ to pair with Madeira", Self.deviceKind))
             task.progress.completedUnitCount = 1
         }
         task.expirationHandler = {

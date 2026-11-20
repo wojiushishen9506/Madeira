@@ -66,7 +66,7 @@ final class MadeiraDockModel: ObservableObject {
     /// Downloads and unpacks Valve's client components (no Wine session).
     func prepareClient() {
         guard !preparing else { return }
-        preparing = true; error = nil; progress = "Starting…"
+        preparing = true; error = nil; progress = L("Starting…")
         Task { @MainActor in
             do {
                 try await SteamRuntimeInstaller.shared.prepare(prefix: MadeiraDock.prefix) { text in
@@ -108,7 +108,7 @@ final class MadeiraDockModel: ObservableObject {
                         status = failure
                         LogStore.shared.log("[madeira-dock] " + failure, level: .error)
                     } else {
-                        status = "Madeira Dock finished normally."
+                        status = L("Madeira Dock finished normally.")
                         LogStore.shared.log("[madeira-dock] host finished (result 0)")
                     }
                     break
@@ -116,13 +116,13 @@ final class MadeiraDockModel: ObservableObject {
                 // Steam still counts another session of this account as playing
                 // (launch refusal 35); the host asks again for up to three minutes.
                 if report.fields["launch-session-wait"] != nil, report.fields["launch-client-error"] == "35" {
-                    status = "Steam says this account is still playing in another session. Waiting for Steam to end it (up to 3 minutes)…"
+                    status = L("Steam says this account is still playing in another session. Waiting for Steam to end it (up to 3 minutes)…")
                 }
                 // The session starts after the JIT pool is set up; count only once it ran.
                 let running = wine_process_is_running() != 0 || wineserver_is_running() != 0
                 if running { started = true; idle = 0 } else { idle += 1 }
                 if !started && idle >= 150 {
-                    status = "The Dock session did not start. See the log."
+                    status = L("The Dock session did not start. See the log.")
                     break
                 }
                 // madeira-bcd: a program an installer started (a launcher, a helper) can keep a
@@ -146,7 +146,7 @@ final class MadeiraDockModel: ObservableObject {
                         LogStore.shared.log("[dock-installers] the installs-only session ended; the game starts after Madeira is restarted")
                         LibraryModel.shared.restartNotice = DockInstallers.restartNotice(DockInstallers.poll(drive: MadeiraDock.drive))
                     } else {
-                        status = "Madeira Dock stopped before reporting a result. Export the log."
+                        status = L("Madeira Dock stopped before reporting a result. Export the log.")
                         LogStore.shared.log("[madeira-dock] session ended without a host result", level: .error)
                     }
                     break

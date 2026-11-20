@@ -18,7 +18,7 @@ enum SettingsPages {
         case steam, gog, itch, epic, ea, runtimes, graphics, display, memory, pointer, jit, signing, saves, drives,
              appearance, advanced, credits
 
-        var title: String {
+        var title: LocalizedStringKey {
             switch self {
             case .steam: return "Steam and Dock"
             case .gog: return "GOG"
@@ -79,7 +79,7 @@ enum SettingsPages {
     }
 
     /// The rows of the Settings tab, in groups.
-    static let groups: [(String?, [Page])] = [
+    static let groups: [(LocalizedStringKey?, [Page])] = [
         ("Getting games", [.steam, .gog, .itch, .epic, .ea, .runtimes]),
         ("Running games", [.graphics, .display, .memory, .pointer]),
         ("Device", [.jit, .signing, .saves, .drives]),
@@ -96,6 +96,7 @@ struct SettingsPagesList: View {
     var body: some View {
         Form {
             Section { LibraryStatus().listRowBackground(Color.clear) }
+            Section { MadeiraLanguagePicker() }
             ForEach(Array(SettingsPages.groups.enumerated()), id: \.offset) { _, group in
                 let pages = group.1.filter(\.shown)
                 if !pages.isEmpty {
@@ -117,7 +118,7 @@ struct SettingsPagesList: View {
         }
     }
 
-    private func summary(_ page: SettingsPages.Page) -> String? {
+    private func summary(_ page: SettingsPages.Page) -> LocalizedStringKey? {
         switch page {
         case .jit: return jitState.enabled ? "On" : "Off"
         case .appearance: return liquidMetal.on ? "Liquid metal" : "Liquid Glass"
@@ -206,7 +207,7 @@ struct SettingsPageView: View {
         }
         Section {
             Picker("Touch control buttons", selection: $controlStyle) {
-                ForEach(TouchControlStyle.styles, id: \.id) { Text($0.name).tag($0.id) }
+                ForEach(TouchControlStyle.styles, id: \.id) { Text(L($0.name)).tag($0.id) }
             }
         } footer: {
             Text("Glass is the system's Liquid Glass. Solid draws each button as a plain opaque disc; a game's Opacity slider still fades them.")

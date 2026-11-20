@@ -341,7 +341,8 @@ struct EpicCloudSection: View {
             } header: {
                 Text("Epic Cloud saves")
             } footer: {
-                Text("Sync runs when Madeira starts and when this page opens. Replaced files are kept in Files › Madeira › Epic Cloud Backups. Sync now uploads newer device saves\(setting.autoUpload ? "; automatic upload is also on" : ""). If both sides changed, choose which saves to keep.")
+                let automaticUpload = setting.autoUpload ? L("; automatic upload is also on") : ""
+                Text("Sync runs when Madeira starts and when this page opens. Replaced files are kept in Files › Madeira › Epic Cloud Backups. Sync now uploads newer device saves\(automaticUpload). If both sides changed, choose which saves to keep.")
             }
             .task { await cloud.check(appName, automatic: true) }
         }
