@@ -4340,15 +4340,15 @@ struct LibraryDetail: View {
                 Text("Reduced (faster)").tag(LibraryEntry.X87Precision.reduced)
                 Text("Full (accurate)").tag(LibraryEntry.X87Precision.full)
             } label: {
-                compatLabel(L("x87 precision"), L("Automatic is fast for 32-bit games and accurate for 64-bit ones. Full can halve a 32-bit game's frame rate."))
+                compatLabel("x87 precision", "Automatic is fast for 32-bit games and accurate for 64-bit ones. Full can halve a 32-bit game's frame rate.")
             }
             Toggle(isOn: Binding(get: { entry.largeReservations ?? false }, set: { entry.largeReservations = $0 ? true : nil })) {
-                compatLabel(L("Large memory reservations"), L("For requests of 64 GB or more. Backs up to 16 GB by default."))
+                compatLabel("Large memory reservations", "For requests of 64 GB or more. Backs up to 16 GB by default.")
             }
             // madeira-bcd: AVX, NVIDIA and Wine's C++ runtime are LibraryPrefs, which
             // BCDLaunch exports at every launch (reloadBCD / migrateEntryOptions).
             Toggle(isOn: Binding(get: { bcd.avx }, set: { on in bcd.avx = on; LibraryPrefs.setAVX(on, for: entry.windowsPath) })) {
-                compatLabel(L("AVX and AVX2"), L("For games that quit with c000001d"))
+                compatLabel("AVX and AVX2", "For games that quit with c000001d")
             }
             // Exported for this game only when chosen (applyEnvironment).
             Picker("CPU cores reported", selection: Binding(get: { entry.cpuCount ?? 0 }, set: { entry.cpuCount = $0 == 0 ? nil : $0 })) {
@@ -4380,11 +4380,11 @@ struct LibraryDetail: View {
             }
             .disabled(GPUCards.card(bcd.gpuCard) != nil)
             Toggle(isOn: Binding(get: { bcd.wineVCRT }, set: { on in bcd.wineVCRT = on; LibraryPrefs.setWineVCRT(on, for: entry.windowsPath) })) {
-                compatLabel(L("Wine's C++ runtime"), L("Instead of the game's msvcp/vcruntime"))
+                compatLabel("Wine's C++ runtime", "Instead of the game's msvcp/vcruntime")
             }
             // Japanese locale (LibraryPrefs.japanese, BCDLaunch.applyExtras, WineProcessBridge.m).
             Toggle(isOn: Binding(get: { bcd.japanese }, set: { on in bcd.japanese = on; LibraryPrefs.setJapanese(on, for: entry.windowsPath) })) {
-                compatLabel(L("Japanese locale"), L("For Japanese games and visual novels whose text shows as squares or gibberish, or that do not start"))
+                compatLabel("Japanese locale", "For Japanese games and visual novels whose text shows as squares or gibberish, or that do not start")
             }
             // madeira-bcd: MADEIRA_REAL_SUSPEND for this game (BCDLaunch.realSuspend).
             Picker(selection: Binding(get: { bcd.realSuspend.map { $0 ? 1 : 2 } ?? 0 },
@@ -4393,7 +4393,7 @@ struct LibraryDetail: View {
                 Text("On").tag(1)
                 Text("Off").tag(2)
             } label: {
-                compatLabel(L("Pause threads fully"), L("For Unity games that crash while loading, like Megabonk. Can make other games freeze"))
+                compatLabel("Pause threads fully", "For Unity games that crash while loading, like Megabonk. Can make other games freeze")
             }
             // Fastsync-only switches: shown for every game, usable only while
             // Settings › Sync engine is Fastsync.

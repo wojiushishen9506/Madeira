@@ -74,8 +74,53 @@ jobs:
         run: |
           python3 tests/host/check-translations.py
           python3 tests/host/check-library-sections.py
-      - name: Build runtime components and IPA
-        run: env -u GITHUB_ACTIONS tools/build-ipa.sh
+      - id: sdk
+        run: bash tools/build/ci-input-key.sh
+      - id: windows-key
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+        run: python3 tools/build/runtime-components.py key windows >> "$GITHUB_OUTPUT"
+      - id: cache-llvm
+        uses: actions/cache/restore@v4
+        with:
+          key: plan19-${{ runner.os }}-${{ runner.arch }}-${{ steps.sdk.outputs.key }}-llvm-ios-15.0.7-${{ hashFiles('tools/build/build-llvm-ios.sh') }}
+          path: |
+            toolchains/llvm-ios-build/.madeira-cache.sha256
+            toolchains/llvm-ios-build/lib/*.a
+            toolchains/llvm-ios-build/include
+            toolchains/llvm-project/llvm/include
+      - id: cache-windows
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ steps.windows-key.outputs.key }}
+          path: .runtime-cache/windows
+      - name: Prepare native runtime components
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+          MADEIRA_RUNTIME_REUSE: '1'
+          MADEIRA_BUILD_I386: '1'
+          MADEIRA_PREPARE_ONLY: '1'
+        run: tools/build-ipa.sh
+      - name: Save new LLVM outputs
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-llvm.outputs.cache-primary-key }}
+          path: |
+            toolchains/llvm-ios-build/.madeira-cache.sha256
+            toolchains/llvm-ios-build/lib/*.a
+            toolchains/llvm-ios-build/include
+            toolchains/llvm-project/llvm/include
+      - name: Save new Windows runtime outputs
+        if: steps.cache-windows.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.windows-key.outputs.key }}
+          path: .runtime-cache/windows
+      - name: Compile the app and package IPA
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+        run: tools/build/package-ipa.sh
       - uses: actions/upload-artifact@v4
         with:
           name: Madeira-ipa

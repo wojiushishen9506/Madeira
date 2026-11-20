@@ -35,10 +35,15 @@ check(catalog.get('sourceLanguage') == 'en', 'English is the source language')
 pattern = re.compile(r'\b(?:Text|Button|Label|Toggle|Section|Picker|navigationTitle|LabeledContent|TextField|Link|NavigationLink|'
                      r'Stepper|Menu|ShareLink|alert|confirmationDialog|SecureField|ContentUnavailableView|DisclosureGroup|ProgressView|L|LF)'
                      r'\(\s*"((?:[^"\\]|\\.)*)"')
+compat_labels = re.compile(r'\bcompatLabel\(\s*"((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)"')
 literals = set()
 for swift in app.glob('*.swift'):
-    for m in pattern.finditer(swift.read_text(encoding='utf-8')):
-        text = re.sub(r'\\\([^()"]*\)', '%@', m.group(1))
+    source = swift.read_text(encoding='utf-8')
+    candidates = pattern.findall(source)
+    for title, note in compat_labels.findall(source):
+        candidates.extend((title, note))
+    for candidate in candidates:
+        text = re.sub(r'\\\([^()"]*\)', '%@', candidate)
         text = re.sub(r'\\u\{([0-9A-Fa-f]+)\}', lambda x: chr(int(x.group(1), 16)), text)
         literals.add(re.sub(r'\\(["\\nt\'])', lambda x: {'n': '\n', 't': '\t'}.get(x.group(1), x.group(1)), text))
 

@@ -58,8 +58,11 @@ xcodebuild -downloadComponent MetalToolchain >/dev/null 2>&1 || true
 log "Building and verifying the bundled runtime components"
 # Local builds rebuild from source. CI may reuse only fully verified inputs.
 python3 "$ROOT/tools/build/runtime-components.py" build all
-if [[ "${GITHUB_ACTIONS:-}" != true ]]; then
+if [[ "${GITHUB_ACTIONS:-}" != true || "${MADEIRA_BUILD_I386:-}" == 1 ]]; then
   "$ROOT/build/wine-i386/build.sh"
+fi
+if [[ "${MADEIRA_PREPARE_ONLY:-}" == 1 ]]; then
+  exit 0
 fi
 "$ROOT/tools/build/package-ipa.sh"
 
