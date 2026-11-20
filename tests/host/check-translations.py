@@ -33,11 +33,11 @@ check(catalog.get('sourceLanguage') == 'en', 'English is the source language')
 # The calls whose first argument SwiftUI reads as a LocalizedStringKey, and L("...")
 # (Library.swift) for texts built in code: notes, picker titles, statuses, errors.
 pattern = re.compile(r'\b(?:Text|Button|Label|Toggle|Section|Picker|navigationTitle|LabeledContent|TextField|Link|NavigationLink|'
-                     r'Stepper|Menu|ShareLink|alert|confirmationDialog|SecureField|ContentUnavailableView|DisclosureGroup|ProgressView|L|LF)'
+                     r'Stepper|Menu|ShareLink|alert|confirmationDialog|SecureField|ContentUnavailableView|DisclosureGroup|ProgressView|accessibilityLabel|L|LF)'
                      r'\(\s*"((?:[^"\\]|\\.)*)"')
 compat_labels = re.compile(r'\bcompatLabel\(\s*"((?:[^"\\]|\\.)*)",\s*"((?:[^"\\]|\\.)*)"')
 literals = set()
-for swift in app.glob('*.swift'):
+for swift in app.rglob('*.swift'):
     source = swift.read_text(encoding='utf-8')
     candidates = pattern.findall(source)
     for title, note in compat_labels.findall(source):
@@ -96,6 +96,7 @@ check(all(key in strings for key in [
     'Remove from library', 'Game executable not found.',
     'The game stopped with Windows error 0x%@.',
     'The program passed an invalid parameter to the Windows C runtime.',
+    'Sign-in method', 'Steam sign-in QR code', 'Getting a sign-in code…',
 ]), 'key first-run, settings and library strings are in the catalog')
 print(f'{len(strings)} catalog entries')
 
@@ -108,6 +109,7 @@ untranslated = sorted(t for t in literals if t not in shapes and re.search(r'[A-
 print(f'NOTE: {len(untranslated)} texts in the app have no translation yet (they show in English):')
 for t in untranslated:
     print('  - ' + t.replace('\n', '\\n'))
+check(all(t.startswith('qrc:///') for t in untranslated), 'app UI literals are translated')
 
 print('FAIL' if failures else 'PASS')
 sys.exit(1 if failures else 0)

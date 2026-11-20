@@ -4236,7 +4236,7 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "代码"
+            "value": "验证码"
           }
         }
       }
@@ -47982,6 +47982,358 @@
           "stringUnit": {
             "state": "translated",
             "value": "Madeira 暂无此游戏的专用设置，推荐使用默认设置（%1$@）。这些设置会关闭模拟器的代码补丁报告，以免部分游戏在启动时退出。重置会替换此游戏的配置。"
+          }
+        }
+      }
+    },
+    "Sign-in method": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录方式"
+          }
+        }
+      }
+    },
+    "QR code": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "二维码"
+          }
+        }
+      }
+    },
+    "Madeira signs in with Steam directly. Your password is sent only to Steam and is never stored. A sign-in token is kept in this device's Keychain until you sign out.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 直接连接 Steam 登录，密码只发送给 Steam。此设备的钥匙串会保留登录令牌，直到你退出登录。"
+          }
+        }
+      }
+    },
+    "Signing out removes the token from this device's Keychain.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出登录时会从此设备的钥匙串移除登录令牌。"
+          }
+        }
+      }
+    },
+    "Steam account name": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 账户名"
+          }
+        }
+      }
+    },
+    "Use your Steam account name, which can differ from your email address.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入 Steam 账户名。账户名可能与电子邮件地址不同。"
+          }
+        }
+      }
+    },
+    "Enter the Steam Guard code shown in the Steam app on your phone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入手机 Steam 应用中显示的 Steam 令牌验证码。"
+          }
+        }
+      }
+    },
+    "Enter the code Steam sent to your email.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入 Steam 发到邮箱的验证码。"
+          }
+        }
+      }
+    },
+    "Enter the code Steam sent to your email (%@).": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入 Steam 发到邮箱（%1$@）的验证码。"
+          }
+        }
+      }
+    },
+    "Approve this sign-in in the Steam app on your phone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在手机 Steam 应用中批准此次登录。"
+          }
+        }
+      }
+    },
+    "Or approve this sign-in in the Steam app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "也可以在 Steam 应用中批准此次登录。"
+          }
+        }
+      }
+    },
+    "Start over": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新开始"
+          }
+        }
+      }
+    },
+    "Steam Guard": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 令牌"
+          }
+        }
+      }
+    },
+    "Steam sign-in QR code": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 登录二维码"
+          }
+        }
+      }
+    },
+    "On another device, open the Steam app, go to Steam Guard, and scan this code.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用另一台设备打开 Steam 应用，进入 Steam 令牌并扫描此二维码。"
+          }
+        }
+      }
+    },
+    "Open in the Steam app on this device": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此设备的 Steam 应用打开"
+          }
+        }
+      }
+    },
+    "Waiting for approval…": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待批准…"
+          }
+        }
+      }
+    },
+    "Getting a sign-in code…": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在获取登录码…"
+          }
+        }
+      }
+    },
+    "Get a new code": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取新登录码"
+          }
+        }
+      }
+    },
+    "The account name or password is incorrect.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户名或密码不正确。"
+          }
+        }
+      }
+    },
+    "Too many attempts. Please try again later.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尝试次数过多。请稍后再试。"
+          }
+        }
+      }
+    },
+    "This Steam account has been disabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 Steam 账户已停用。"
+          }
+        }
+      }
+    },
+    "Failed to fetch RSA public key for password encryption": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法获取用于加密密码的 RSA 公钥。"
+          }
+        }
+      }
+    },
+    "QR code has expired. Please try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "二维码已过期，请重试。"
+          }
+        }
+      }
+    },
+    "The sign-in request expired. Start again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录请求已过期，请重新登录。"
+          }
+        }
+      }
+    },
+    "No Steam servers are available.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前没有可用的 Steam 服务器。"
+          }
+        }
+      }
+    },
+    "Steam did not respond in time. Check your internet connection and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 响应超时。请检查网络连接后重试。"
+          }
+        }
+      }
+    },
+    "Disconnected from Steam.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已与 Steam 断开连接。"
+          }
+        }
+      }
+    },
+    "No internet connection. Connect and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前没有网络连接。联网后重试。"
+          }
+        }
+      }
+    },
+    "Steam did not respond in time. Try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 响应超时，请重试。"
+          }
+        }
+      }
+    },
+    "Steam accepted the sign-in, but Madeira could not save it in this device's Keychain. Check the app's signing and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam 已接受登录，但 Madeira 无法将登录令牌存入此设备的钥匙串。请检查应用签名后重试。"
+          }
+        }
+      }
+    },
+    "Account": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户"
           }
         }
       }
