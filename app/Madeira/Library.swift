@@ -1153,7 +1153,7 @@ final class LibraryModel: ObservableObject {
     }
 
     func save(_ entry: LibraryEntry, metadata: Bool = false) {
-        guard !readOnly else { error = "The library file could not be read. Preserve or repair it before making changes."; return }
+        guard !readOnly else { error = L("The library file could not be read. Preserve or repair it before making changes."); return }
         var next = entries
         var entry = entry
         // madeira-bcd: a game seen for the first time gets Madeira's recommended settings
@@ -1179,8 +1179,13 @@ final class LibraryModel: ObservableObject {
         } else { next.append(entry) }
         persist(next, metadata: metadata ? [entry.id] : nil)
     }
-    func remove(_ id: UUID) {
-        persist(entries.filter { $0.id != id })
+    func remove(_ id: UUID) -> Bool {
+        guard !readOnly else {
+            error = L("The library file could not be read. Preserve or repair it before making changes.")
+            return false
+        }
+        // Finish the atomic write before the card disappears or the sheet closes.
+        return persist(entries.filter { $0.id != id }, wait: true)
     }
     /// A Steam game's library entry, which holds its per-game settings
     /// (SteamGames.swift). A game without one gets a new entry made from what
@@ -1383,11 +1388,15 @@ final class LibraryModel: ObservableObject {
                 try LibraryFileWriter.encode(next, to: file)
                 entries = next
                 return true
-            } catch { self.error = "Could not save the library: " + error.localizedDescription; return false }
+            } catch {
+                self.error = String(format: L("Could not save the library: %@"), error.localizedDescription)
+                return false
+            }
         }
         if wait {
             do { try LibraryFileWriter.shared.writeNow(next, to: file) } catch {
-                self.error = "Could not save the library: " + error.localizedDescription; return false
+                self.error = String(format: L("Could not save the library: %@"), error.localizedDescription)
+                return false
             }
             record(metadata == nil ? .edit : .metadata, metadata ?? [])
             entries = next
@@ -1396,7 +1405,7 @@ final class LibraryModel: ObservableObject {
         record(metadata == nil ? .edit : .metadata, metadata ?? [])
         entries = next
         LibraryFileWriter.shared.write(next, to: file) { [weak self] error in
-            self?.error = "Could not save the library: " + error.localizedDescription
+            self?.error = String(format: L("Could not save the library: %@"), error.localizedDescription)
         }
         return true
     }
@@ -4020,7 +4029,7 @@ struct LibraryDetail: View {
         return count == 0 ? "None" : count == 1 ? "1 setting" : "\(count) settings"
     }
     private func start() {
-        guard !leaving else { return }
+        guard !leaving, !missingLocalExecutable else { return }
         // A Steam game starts through Madeira Dock (ContentView.launchLibraryEntry)
         // once its files are complete and Dock can sign in; "The game" once its
         // program is chosen (no client or sign-in involved).
@@ -4100,19 +4109,19 @@ struct LibraryDetail: View {
         case display, controls, launch, compatibility, steam, cloud, achievements, gog, itch, library, iniFiles, advanced
         var title: String {
             switch self {
-            case .display: return "Display"
-            case .controls: return "Controls"
-            case .launch: return "Launch"
-            case .compatibility: return "Compatibility"
+            case .display: return L("Display")
+            case .controls: return L("Controls")
+            case .launch: return L("Launch")
+            case .compatibility: return L("Compatibility")
             case .steam: return "Steam"
-            case .cloud: return "Steam Cloud"
-            case .workshop: return "Steam Workshop"
+            case .cloud: return L("Steam Cloud")
+            case .workshop: return L("Steam Workshop")
             case .gog: return "GOG"
             case .itch: return "itch.io"
-            case .achievements: return "Achievements"
-            case .library: return "Library details"
-            case .iniFiles: return "Settings files"
-            case .advanced: return "Advanced"
+            case .achievements: return L("Achievements")
+            case .library: return L("Library details")
+            case .iniFiles: return L("Settings files")
+            case .advanced: return L("Advanced")
             }
         }
         var symbol: String {
@@ -4415,6 +4424,16 @@ struct LibraryDetail: View {
         }
     }
 
+    /// Installed store games and disconnected external drives have their own
+    /// lifecycle. Offer cleanup here for a missing manually imported local game.
+    private var missingLocalExecutable: Bool {
+        guard entry.desktop != true, entry.bigPicture != true,
+              entry.steamAppID == nil, entry.gogProductID == nil, entry.itchGameID == nil,
+              entry.epicAppName == nil, entry.eaOfferID == nil,
+              !entry.relativePath.hasPrefix("External/") else { return false }
+        return (try? LibraryModel.executable(entry.launchRelativePath)) == nil
+    }
+
     @ViewBuilder private var libraryPage: some View {
         if entry.desktop != true { Section("Library details") {
             TextField("Title", text: $entry.title)
@@ -4501,7 +4520,7 @@ struct LibraryDetail: View {
                                     }
                                 }.frame(minWidth: 100, minHeight: 30)
                             }
-                            .buttonStyle(LibraryPlayStyle(pending: leaving)).disabled(leaving)
+                            .buttonStyle(LibraryPlayStyle(pending: leaving)).disabled(leaving || missingLocalExecutable)
                             .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { playFrame = $0 }
                         }
                     }.padding(.vertical, 24)
@@ -4512,6 +4531,12 @@ struct LibraryDetail: View {
                                     LinearGradient(colors: [.clear, Color(uiColor: .secondarySystemGroupedBackground)], startPoint: .top, endPoint: .bottom).frame(height: 70)
                                 }.clipped()
                         )
+                }
+                if missingLocalExecutable {
+                    Section {
+                        Label("Game executable not found.", systemImage: "exclamationmark.triangle")
+                        Button("Remove from library", role: .destructive) { remove = true }
+                    }
                 }
                 // A Play error sits under Play.
                 if let error { Section { Text(error).foregroundStyle(.red) } }
@@ -4622,7 +4647,11 @@ struct LibraryDetail: View {
             } catch { self.error = error.localizedDescription }
         }
         .confirmationDialog("Remove this library entry? Your executable and saves stay in drive_c.", isPresented: $remove, titleVisibility: .visible) {
-            Button("Remove", role: .destructive) { leaving = true; model.remove(entry.id); dismiss() }
+            Button("Remove", role: .destructive) {
+                guard model.remove(entry.id) else { return }
+                leaving = true
+                dismiss()
+            }
         }
         .onDisappear { if !leaving { model.save(entry) } }
         .onReceive(LibraryController.shared.commands) { command in

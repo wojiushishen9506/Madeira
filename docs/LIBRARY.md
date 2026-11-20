@@ -34,6 +34,9 @@ covers chosen from Files are stored as thumbnails in
 `Documents/madeira-art/`. A library file that cannot be read, or that has a
 newer version, is left untouched and cannot be overwritten from the UI.
 Removing an entry never removes the game's files or saves.
+If you delete a manually imported local game's files first, open its card and
+choose **Remove from library** below the missing-executable message. Madeira
+updates the list once it has saved the removal to the library file.
 
 ## Library screen
 

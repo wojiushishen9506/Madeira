@@ -78,6 +78,24 @@ require('$0.desktop != true' in entries and '$0.steamAppID == nil' in entries
         'Other games: the games you added (no Steam game, no desktop), filtered by the search')
 require('LibraryCells(items: items, layout: layout, width: viewportWidth)' in view, "Other games: the library's layout")
 
+# ------------------------------------------------------------------ Imported-game removal
+removal = between(library, 'func remove(_ id: UUID) -> Bool {', '/// A Steam game')
+wait_write = between(library, 'if wait {', 'LibraryFileWriter.shared.write(next')
+confirm_removal = between(library, '.confirmationDialog("Remove this library entry?', '.onReceive(LibraryController.shared.commands)')
+require('wait: true' in removal and 'guard !readOnly' in removal
+        and wait_write.index('try LibraryFileWriter.shared.writeNow') < wait_write.index('entries = next')
+        and 'guard model.remove(entry.id) else { return }\n                leaving = true\n                dismiss()' in confirm_removal
+        and 'if !leaving { model.save(entry) }' in confirm_removal,
+        'removal: a successful atomic write precedes dismissal, and dismissal never re-saves a removed entry')
+missing = between(library, 'private var missingLocalExecutable:', 'private var libraryPage:')
+cleanup = between(library, 'if missingLocalExecutable {', '// A Play error sits under Play.')
+require('LibraryModel.executable(entry.launchRelativePath)' in missing
+        and all(f'entry.{store} == nil' in missing for store in
+                ('steamAppID', 'gogProductID', 'itchGameID', 'epicAppName', 'eaOfferID'))
+        and 'hasPrefix("External/")' in missing
+        and 'Button("Remove from library", role: .destructive) { remove = true }' in cleanup,
+        'missing imported executable: offers the same removal confirmation without treating store games or external drives as missing')
+
 # ------------------------------------------------------------------ Steam and Not installed
 require('LibrarySectionHeader(title: "Steam", count: installed.count,' in body and
         'collapsed: collapsible ? $hideInstalled : nil)' in body, 'Steam: installed count and a collapsible title')
