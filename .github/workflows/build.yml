@@ -5,6 +5,11 @@ on:
     branches: [main, 'codex/pr-build-*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      single_runner:
+        description: Build all components on one runner during image rollouts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -19,6 +24,7 @@ concurrency:
 
 jobs:
   plan:
+    if: inputs.single_runner != true
     runs-on: xcode-27
     outputs:
       ipa: ${{ steps.key.outputs.ipa }}
@@ -38,6 +44,10 @@ jobs:
           python3 tests/host/check-runtime-components.py
       - name: Check touch control layouts and editor
         run: python3 tests/host/check-control-presets.py
+      - name: Check app translations and library removal
+        run: |
+          python3 tests/host/check-translations.py
+          python3 tests/host/check-library-sections.py
       - name: Check Steam connection recovery
         if: hashFiles('tests/host/check-steam-cm-transport.py') != ''
         run: python3 tests/host/check-steam-cm-transport.py
@@ -51,6 +61,27 @@ jobs:
           key: ${{ steps.key.outputs.ipa }}
           path: dist/Madeira.ipa
           lookup-only: true
+
+  single-runner:
+    if: inputs.single_runner == true
+    runs-on: xcode-27
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Check app translations and library removal
+        run: |
+          python3 tests/host/check-translations.py
+          python3 tests/host/check-library-sections.py
+      - name: Build runtime components and IPA
+        run: env -u GITHUB_ACTIONS tools/build-ipa.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Madeira-ipa
+          path: dist/Madeira.ipa
+          if-no-files-found: error
+          compression-level: 0
 
   reuse:
     needs: plan
