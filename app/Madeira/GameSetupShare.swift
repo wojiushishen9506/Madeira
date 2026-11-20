@@ -161,8 +161,8 @@ struct GameSetup {
         case notASetup, newerVersion(Int)
         var errorDescription: String? {
             switch self {
-            case .notASetup: return "This isn't a Madeira setup."
-            case .newerVersion: return "This setup was made by a newer Madeira. Update Madeira to apply it."
+            case .notASetup: return L("This isn't a Madeira setup.")
+            case .newerVersion: return L("This setup was made by a newer Madeira. Update Madeira to apply it.")
             }
         }
     }
@@ -231,13 +231,13 @@ struct GameSetup {
     var contents: [String] {
         var out: [String] = []
         let fields = entry.keys.filter { !Self.controlKeys.contains($0) && !Self.sameGameKeys.contains($0) }.count
-        if fields > 0 { out.append(fields == 1 ? "1 game setting" : "\(fields) game settings") }
+        if fields > 0 { out.append(fields == 1 ? L("1 game setting") : "\(fields) game settings") }
         let lines = configLines.count
-        if lines > 0 { out.append(lines == 1 ? "1 config line" : "\(lines) config lines") }
+        if lines > 0 { out.append(lines == 1 ? L("1 config line") : "\(lines) config lines") }
         let on = switches.filter { ($0.value as? Bool) == true || (($0.value as? String).map { !$0.isEmpty } ?? false) }.count
-        if on > 0 { out.append(on == 1 ? "1 launch switch" : "\(on) launch switches") }
+        if on > 0 { out.append(on == 1 ? L("1 launch switch") : "\(on) launch switches") }
         if hasControls { out.append("touch controls and controller") }
-        if !iniFiles.isEmpty { out.append(iniFiles.count == 1 ? "1 settings file" : "\(iniFiles.count) settings files") }
+        if !iniFiles.isEmpty { out.append(iniFiles.count == 1 ? L("1 settings file") : "\(iniFiles.count) settings files") }
         return out
     }
 
@@ -444,7 +444,7 @@ struct GameSetupShareSheet: View {
                     file = try made.temporaryFile()
                     text = "\(made.title) setup for Madeira: " + (try made.text())
                 } catch {
-                    self.error = "This game's setup could not be saved: \(error.localizedDescription)"
+                    self.error = LF("This game's setup could not be saved: %@", "\(error.localizedDescription)")
                 }
             }
         }
@@ -570,7 +570,7 @@ struct GameSetupInboxSheet: View {
                         model.save(entry)
                         dismiss()
                     } catch {
-                        self.error = "This setup could not be applied: \(error.localizedDescription)"
+                        self.error = LF("This setup could not be applied: %@", "\(error.localizedDescription)")
                     }
                 }
             }

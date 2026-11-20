@@ -262,6 +262,8 @@ def validate_ipa(ipa, sdk):
             if (entry.external_attr >> 16) & 0o170000 == 0o120000:
                 raise ValueError(f'IPA symlink is not supported: {entry.filename}')
         prefix = 'Payload/Madeira.app/'
+        if any(p.startswith(prefix + 'x86_64-vcruntime/') and p.lower().endswith('.dll') for p in names):
+            raise ValueError('desktop Visual C++ redistributables must be installed on-device')
         manifest = json.loads(archive.read(prefix + MANIFEST))
         if manifest.get('schema') != 1 or manifest.get('tree') != git('rev-parse', 'HEAD^{tree}'):
             raise ValueError('IPA manifest does not match this source tree')
@@ -269,8 +271,7 @@ def validate_ipa(ipa, sdk):
             raise ValueError('IPA is missing runtime components')
         for name in CONTRACT:
             validate_manifest(name, manifest['components'][name], lambda p: archive.read(prefix + p), sdk)
-        for path in ['Madeira', 'Madeira.debug.dylib', 'prefix-template.tar.gz',
-                     'x86_64-vcruntime/vcruntime140.dll', 'i386-windows/ntdll.dll']:
+        for path in ['Madeira', 'Madeira.debug.dylib', 'prefix-template.tar.gz', 'i386-windows/ntdll.dll']:
             if not archive.read(prefix + path):
                 raise ValueError(f'empty app resource: {path}')
         if archive.testzip():

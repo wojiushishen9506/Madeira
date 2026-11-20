@@ -244,7 +244,7 @@ struct EAInstalledGame: Codable, Sendable {
             let archive = try await downloader.archive(url)
             sizes[id] = .known(download: archive.compressedBytes, install: archive.installBytes)
         } catch {
-            sizes[id] = .unavailable((error as? EAAPIError)?.errorDescription ?? "EA did not say how large this game is.")
+            sizes[id] = .unavailable((error as? EAAPIError)?.errorDescription ?? L("EA did not say how large this game is."))
             handle(error, context: "size id=\(id)", report: false)
         }
     }
@@ -271,7 +271,7 @@ struct EAInstalledGame: Codable, Sendable {
     func repair(_ id: String) { enqueue(id, kind: .repair) }
 
     private func enqueue(_ id: String, kind: Download.Kind) {
-        guard signedIn || installed[id] != nil else { error = "Sign in to EA to download games."; return }
+        guard signedIn || installed[id] != nil else { error = L("Sign in to EA to download games."); return }
         guard signedIn else { error = EAAPIError.signedOut.localizedDescription; return }
         if let current = downloads[id], current.state == .active || current.state == .queued { return }
         downloads[id] = Download(kind: kind, state: .queued)

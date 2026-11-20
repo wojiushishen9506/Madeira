@@ -327,7 +327,7 @@ func window(_ image: String, _ w: Int, _ h: Int, visible: Bool = true, drawn: Bo
 
 with tempfile.TemporaryDirectory(prefix='madeira-dock-start-') as tmp:
     tmp = Path(tmp)
-    (tmp / 'rules.swift').write_text('import Foundation\n' + rules, encoding='utf-8')
+    (tmp / 'rules.swift').write_text('import Foundation\nfunc L(_ text: String) -> String { text }\n' + rules, encoding='utf-8')
     (tmp / 'checks.swift').write_text(checks, encoding='utf-8')
     exe = tmp / 'swift-checks'
     r = subprocess.run([SWIFTC, '-parse-as-library', '-swift-version', '5', '-o', str(exe),

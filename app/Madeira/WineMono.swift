@@ -306,11 +306,11 @@ private struct TarReader {
         switch phase {
         case .downloading(let f):
             let total = Double(WineMonoPin.tarBytes) / 1_000_000
-            return "Downloading… \(Int((f * total).rounded())) of \(Int(total.rounded())) MB"
-        case .installing(let f): return "Installing… \(Int((f * 100).rounded()))%"
+            return LF("Downloading… %@ of %@ MB", String(Int((f * total).rounded())), String(Int(total.rounded())))
+        case .installing(let f): return LF("Installing… %@%%", String(Int((f * 100).rounded())))
         case .idle:
-            if Self.bundled { return "Included in this build" }
-            return installed ? "Wine Mono \(WineMonoPin.version) is installed" : "Not installed"
+            if Self.bundled { return L("Included in this build") }
+            return installed ? LF("Wine Mono %@ is installed", WineMonoPin.version) : L("Not installed")
         }
     }
 
@@ -326,7 +326,7 @@ private struct TarReader {
             var url = root; try url.setResourceValues(values)
             let free = try root.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage ?? 0
             guard free > 450_000_000 else {
-                error = "Wine Mono needs about 450 MB of free space while it installs (about 130 MB once installed)."
+                error = L("Wine Mono needs about 450 MB of free space while it installs (about 130 MB once installed).")
                 return
             }
         } catch {

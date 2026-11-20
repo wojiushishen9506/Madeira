@@ -280,20 +280,20 @@ struct OnboardingView: View {
         }
     }
 
-    private func header(_ title: String, symbol: String) -> some View {
+    private func header(_ title: LocalizedStringKey, symbol: String) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Image(systemName: symbol).font(.system(size: 44)).foregroundStyle(.tint).accessibilityHidden(true)
             Text(title).font(.title.bold()).accessibilityAddTraits(.isHeader)
         }
     }
 
-    private func primary(_ title: String, symbol: String, action: @escaping () -> Void) -> some View {
+    private func primary(_ title: LocalizedStringKey, symbol: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Label(title, systemImage: symbol).fontWeight(.semibold).frame(maxWidth: .infinity, minHeight: 36)
         }.buttonStyle(.borderedProminent).controlSize(.large)
     }
 
-    private func secondary(_ title: String, action: @escaping () -> Void) -> some View {
+    private func secondary(_ title: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button(title, action: action).frame(maxWidth: .infinity, minHeight: 44)
     }
 
@@ -326,10 +326,11 @@ struct OnboardingView: View {
                 Text("Since you last ran setup, Madeira has something new to set up:").font(.title3)
             } else {
                 Text("Welcome to Madeira").font(.largeTitle.bold()).accessibilityAddTraits(.isHeader)
-                Text("Madeira runs Windows games on your \(UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone").")
+                Text("Madeira runs Windows games on your \(device).")
                     .font(.title3)
                 Text("A few optional steps get you ready:").foregroundStyle(.secondary)
             }
+            MadeiraLanguagePicker()
             let pages = model.steps
             let offered: [LocalizedStringKey] =
                 (pages.contains(.localDevVPN) ? ["Install LocalDevVPN, which Madeira enables JIT through."] : [])
@@ -487,7 +488,7 @@ struct OnboardingView: View {
         .font(.subheadline).foregroundStyle(.secondary)
     }
 
-    private func jitChoice(_ title: String, symbol: String, detail: String, done: Bool, enabled: Bool = true,
+    private func jitChoice(_ title: LocalizedStringKey, symbol: String, detail: LocalizedStringKey, done: Bool, enabled: Bool = true,
                            action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 14) {
@@ -593,9 +594,10 @@ struct OnboardingView: View {
     private var signInPage: some View {
         VStack(alignment: .leading, spacing: 18) {
             header("Sign in to Steam", symbol: "person.crop.circle.badge.checkmark")
-            Text(model.steps.contains(.dockClient)
-                 ? "When you start a game with Madeira Dock, Madeira hands this sign-in to Valve's own Steam client, which signs in and checks your license."
-                 : "Madeira keeps a Steam sign-in so it can start your Steam games with your own account.")
+            let explanation: LocalizedStringKey = model.steps.contains(.dockClient)
+                ? "When you start a game with Madeira Dock, Madeira hands this sign-in to Valve's own Steam client, which signs in and checks your license."
+                : "Madeira keeps a Steam sign-in so it can start your Steam games with your own account."
+            Text(explanation)
             VStack(alignment: .leading, spacing: 10) {
                 Label("Your password goes only to Steam and is never saved.", systemImage: "lock.fill")
                 Label("The sign-in is kept in this device's Keychain until you sign out.", systemImage: "iphone")

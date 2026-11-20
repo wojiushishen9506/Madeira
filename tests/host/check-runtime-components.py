@@ -106,8 +106,7 @@ class RuntimeTests(unittest.TestCase):
     def ipa(self):
         bundle = self.root / 'app/Madeira'
         runtime.bundle_manifest(bundle, self.sdk)
-        for path in ['Madeira', 'Madeira.debug.dylib', 'prefix-template.tar.gz',
-                     'x86_64-vcruntime/vcruntime140.dll', 'i386-windows/ntdll.dll']:
+        for path in ['Madeira', 'Madeira.debug.dylib', 'prefix-template.tar.gz', 'i386-windows/ntdll.dll']:
             self.write('app/Madeira/' + path, b'app fixture')
         ipa = self.root / 'test.ipa'
         with zipfile.ZipFile(ipa, 'w') as archive:
@@ -125,6 +124,12 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(runtime.missing_imports(files), set())
         del files['apisetschema.dll']
         self.assertEqual(runtime.missing_imports(files), {'api-ms-win-example.dll'})
+
+    def test_ipa_with_bundled_visual_cpp_is_rejected(self):
+        self.snapshots()
+        self.write('app/Madeira/x86_64-vcruntime/vcruntime140.dll', b'fixture')
+        with self.assertRaisesRegex(ValueError, 'redistributables must be installed on-device'):
+            runtime.validate_ipa(self.ipa(), self.sdk)
 
     def test_crt_startup_dependencies_stay_delayed(self):
         dependencies = ['advapi32.dll', 'user32.dll']

@@ -5,6 +5,11 @@ on:
     branches: [main, 'codex/pr-build-*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      single_runner:
+        description: Build all components on one runner during image rollouts
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -19,6 +24,7 @@ concurrency:
 
 jobs:
   plan:
+    if: inputs.single_runner != true
     runs-on: xcode-27
     outputs:
       ipa: ${{ steps.key.outputs.ipa }}
@@ -37,6 +43,10 @@ jobs:
           python3 tests/host/check-runtime-components.py
       - name: Check touch control layouts and editor
         run: python3 tests/host/check-control-presets.py
+      - name: Check app translations and library removal
+        run: |
+          python3 tests/host/check-translations.py
+          python3 tests/host/check-library-sections.py
       - name: Check Steam connection recovery
         if: hashFiles('tests/host/check-steam-cm-transport.py') != ''
         run: python3 tests/host/check-steam-cm-transport.py
@@ -50,6 +60,77 @@ jobs:
           key: ${{ steps.key.outputs.ipa }}
           path: dist/Madeira.ipa
           lookup-only: true
+
+  single-runner:
+    if: inputs.single_runner == true
+    runs-on: xcode-27
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Check translations, library and launch profiles
+        run: |
+          python3 tests/host/check-translations.py
+          python3 tests/host/check-library-sections.py
+          python3 tests/host/check-runtime-components.py
+          python3 tests/host/check-game-recommendations.py --require-swift
+          python3 tests/host/check-log-summary.py --require-swift
+      - name: Type-check the app for iOS
+        run: python3 tools/build/check-ios-swift.py
+      - id: sdk
+        run: bash tools/build/ci-input-key.sh
+      - id: windows-key
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+        run: python3 tools/build/runtime-components.py key windows >> "$GITHUB_OUTPUT"
+      - id: cache-llvm
+        uses: actions/cache/restore@v4
+        with:
+          key: plan19-${{ runner.os }}-${{ runner.arch }}-${{ steps.sdk.outputs.key }}-llvm-ios-15.0.7-${{ hashFiles('tools/build/build-llvm-ios.sh') }}
+          path: |
+            toolchains/llvm-ios-build/.madeira-cache.sha256
+            toolchains/llvm-ios-build/lib/*.a
+            toolchains/llvm-ios-build/include
+            toolchains/llvm-project/llvm/include
+      - id: cache-windows
+        uses: actions/cache/restore@v4
+        with:
+          key: ${{ steps.windows-key.outputs.key }}
+          path: .runtime-cache/windows
+      - name: Prepare native runtime components
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+          MADEIRA_RUNTIME_REUSE: '1'
+          MADEIRA_BUILD_I386: '1'
+          MADEIRA_PREPARE_ONLY: '1'
+        run: tools/build-ipa.sh
+      - name: Save new LLVM outputs
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-llvm.outputs.cache-primary-key }}
+          path: |
+            toolchains/llvm-ios-build/.madeira-cache.sha256
+            toolchains/llvm-ios-build/lib/*.a
+            toolchains/llvm-ios-build/include
+            toolchains/llvm-project/llvm/include
+      - name: Save new Windows runtime outputs
+        if: steps.cache-windows.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.windows-key.outputs.key }}
+          path: .runtime-cache/windows
+      - name: Compile the app and package IPA
+        env:
+          MADEIRA_RUNTIME_SDK: ${{ steps.sdk.outputs.key }}
+        run: tools/build/package-ipa.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Madeira-ipa
+          path: dist/Madeira.ipa
+          if-no-files-found: error
+          compression-level: 0
 
   reuse:
     needs: plan

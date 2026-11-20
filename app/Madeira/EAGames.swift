@@ -82,7 +82,7 @@ struct EAGamesSection: View {
                 if !mine.isEmpty {
                     LibraryCells(items: mine, layout: layout, width: width) { item, list, dense in cell(item, list: list, dense: dense) }
                 } else if ea.signedIn && !ea.refreshing && others.isEmpty && search.isEmpty {
-                    Text(ea.libraryUpdated == nil ? "Pull down to load your EA library."
+                    Text(ea.libraryUpdated == nil ? L("Pull down to load your EA library.")
                          : "No PC games were found in this EA account.").foregroundStyle(.secondary)
                 }
                 if ea.signedIn && !others.isEmpty {
@@ -244,7 +244,7 @@ struct EAGameCell: View {
         } else if item.installed != nil, let entry {
             LibraryBadges(entry: entry, note: ea.updateAvailable(item.id) ? "Update" : nil).foregroundStyle(.secondary)
         } else if item.installed == nil {
-            badge(item.owned?.downloadable == false ? "Not downloadable" : "Not installed")
+            badge(item.owned?.downloadable == false ? L("Not downloadable") : "Not installed")
         }
     }
 
@@ -253,7 +253,7 @@ struct EAGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -302,14 +302,14 @@ struct EADownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting for the other EA download to finish…"
-        case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
+        case .queued: return L("Waiting for the other EA download to finish…")
+        case .paused: return p.totalBytes > 0 ? LF("Paused at %@%%", "\(Int(p.fraction * 100))") : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
             case .preparing: return p.step.map { $0 + "…" } ?? "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(eaBytes(p.doneBytes)) of \(eaBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {
@@ -487,7 +487,7 @@ struct EASettingsSection: View {
     var body: some View {
         Section {
             if ea.signedIn {
-                LabeledContent("Signed in as", value: ea.accountName ?? "EA account")
+                LabeledContent("Signed in as", value: ea.accountName ?? L("EA account"))
                 Button("Sign out of EA", role: .destructive) { confirmSignOut = true }
             } else {
                 Button { open(.eaSignIn) } label: { Label("Sign in to EA", systemImage: "person.crop.circle.badge.plus") }
@@ -524,7 +524,7 @@ struct EASignInView: View {
             Group {
                 if ea.signedIn {
                     Form {
-                        LabeledContent("Signed in as", value: ea.accountName ?? "EA account")
+                        LabeledContent("Signed in as", value: ea.accountName ?? L("EA account"))
                         Button("Sign out", role: .destructive) { ea.signOut() }
                     }
                 } else {

@@ -18,11 +18,11 @@ enum StikJITHelper {
             case .scriptMissing:
                 return "Madeira's JIT script is missing from this installation. Reinstall Madeira."
             case .invalidRequest:
-                return "Madeira could not create the StikDebug request."
+                return L("Madeira could not create the StikDebug request.")
             case .unavailable:
-                return "StikDebug is not installed. Install it, or configure Built-in StikJIT."
+                return L("StikDebug is not installed. Install it, or configure Built-in StikJIT.")
             case .timedOut:
-                return "StikDebug did not attach to Madeira within 90 seconds. Check its pairing file and LocalDevVPN, then try again."
+                return L("StikDebug did not attach to Madeira within 90 seconds. Check its pairing file and LocalDevVPN, then try again.")
             }
         }
     }
@@ -838,7 +838,7 @@ enum StikJITHelper {
                 return nil
             }
             poolFailure = requestUnanswered
-                ? "The debugger could not allocate the JIT memory. Restart Madeira, enable JIT and try again."
+                ? L("The debugger could not allocate the JIT memory. Restart Madeira, enable JIT and try again.")
                 : "The JIT memory landed at an address Madeira cannot use. Restart Madeira, enable JIT and try again."
             LogStore.shared.log("BAD POOL: no valid placement after retries. Killing in 10s — please relaunch.", level: .error)
             DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 10) {

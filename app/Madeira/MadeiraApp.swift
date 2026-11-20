@@ -1,8 +1,64 @@
 import Foundation
 import SwiftUI
 
+enum MadeiraLanguage: String, CaseIterable {
+    case system, simplifiedChinese = "zh-Hans", english = "en", german = "de", spanish = "es",
+         korean = "ko", brazilianPortuguese = "pt-BR", russian = "ru"
+
+    static let key = "madeira.interfaceLanguage"
+    static var current: Self { Self(rawValue: UserDefaults.standard.string(forKey: key) ?? "") ?? .system }
+
+    var locale: Locale {
+        self == .system ? .autoupdatingCurrent : Locale(identifier: rawValue)
+    }
+
+    var nativeName: String {
+        switch self {
+        case .system: return L("System language")
+        case .simplifiedChinese: return "简体中文"
+        case .english: return "English"
+        case .german: return "Deutsch"
+        case .spanish: return "Español"
+        case .korean: return "한국어"
+        case .brazilianPortuguese: return "Português (Brasil)"
+        case .russian: return "Русский"
+        }
+    }
+
+    private static let bundles: [Self: Bundle] = Dictionary(uniqueKeysWithValues: allCases.compactMap { language in
+        guard language != .system,
+              let url = Bundle.main.url(forResource: language.rawValue, withExtension: "lproj"),
+              let bundle = Bundle(url: url) else { return nil }
+        return (language, bundle)
+    })
+
+    func localized(_ key: String) -> String {
+        let bundle = self == .system ? Bundle.main : Self.bundles[self]
+        return bundle?.localizedString(forKey: key, value: key, table: "Localizable") ?? key
+    }
+}
+
+struct MadeiraLanguagePicker: View {
+    @AppStorage(MadeiraLanguage.key) private var language = MadeiraLanguage.system
+
+    var body: some View {
+        Picker("Interface language", selection: $language) {
+            ForEach(MadeiraLanguage.allCases, id: \.self) { option in
+                if option == .system {
+                    Text("System language").tag(option)
+                } else {
+                    Text(verbatim: option.nativeName).tag(option)
+                }
+            }
+        }
+        .pickerStyle(.menu)
+    }
+}
+
 @main
 struct MadeiraApp: App {
+    @AppStorage(MadeiraLanguage.key) private var language = MadeiraLanguage.system
+
     init() {
         // Opt-in iPhone pointer experiments (PhonePointer.m): before any scene exists.
         madeira_phone_pointer_setup()
@@ -31,6 +87,7 @@ struct MadeiraApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.locale, language.locale)
                 .background(InteractionFrameRateInstaller())   // touch frame-rate request (New library grid)
                 .modifier(ClaimGamepadEvents())
                 .onAppear {

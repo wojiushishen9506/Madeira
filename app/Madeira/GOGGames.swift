@@ -84,7 +84,7 @@ struct GOGGamesSection: View {
                 if !mine.isEmpty {
                     LibraryCells(items: mine, layout: layout, width: width) { item, list, dense in cell(item, list: list, dense: dense) }
                 } else if gog.signedIn && !gog.refreshing && others.isEmpty && search.isEmpty {
-                    Text(gog.libraryUpdated == nil ? "Pull down to load your GOG library."
+                    Text(gog.libraryUpdated == nil ? L("Pull down to load your GOG library.")
                          : "No Windows games were found in this GOG library.").foregroundStyle(.secondary)
                 }
                 if gog.signedIn && !others.isEmpty {
@@ -256,7 +256,7 @@ struct GOGGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -305,14 +305,14 @@ struct GOGDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting for the other GOG download to finish…"
-        case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
+        case .queued: return L("Waiting for the other GOG download to finish…")
+        case .paused: return p.totalBytes > 0 ? LF("Paused at %@%%", "\(Int(p.fraction * 100))") : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
             case .preparing: return p.step.map { $0 + "…" } ?? "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(gogBytes(p.doneBytes)) of \(gogBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {
@@ -451,9 +451,9 @@ struct GOGSetupRows: View {
 
     static func text(_ state: GOGSetup.State) -> String {
         switch state {
-        case .pending: return "Installs at the next start"
+        case .pending: return L("Installs at the next start")
         case .done: return "Installed"
-        case .failed(let code): return "Failed (code \(code)); Repair runs it again"
+        case .failed(let code): return LF("Failed (code %@); Repair runs it again", "\(code)")
         }
     }
 }
@@ -505,7 +505,7 @@ struct GOGEntrySection: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 if record.galaxy != nil, GOGGalaxy.enabled {
-                    LabeledContent("Achievements and stats", value: gog.signedIn ? "On while it runs" : "Sign in to GOG")
+                    LabeledContent("Achievements and stats", value: gog.signedIn ? L("On while it runs") : "Sign in to GOG")
                 }
                 GOGSetupRows(record: record)
             }
@@ -560,7 +560,7 @@ struct GOGSettingsSection: View {
     var body: some View {
         Section {
             if gog.signedIn {
-                LabeledContent("Signed in as", value: gog.accountName ?? "GOG account")
+                LabeledContent("Signed in as", value: gog.accountName ?? L("GOG account"))
                 Button("Sign out of GOG", role: .destructive) { confirmSignOut = true }
             } else {
                 Button { open(.gogSignIn) } label: { Label("Sign in to GOG", systemImage: "person.crop.circle.badge.plus") }
@@ -597,7 +597,7 @@ struct GOGSignInView: View {
             Group {
                 if gog.signedIn {
                     Form {
-                        LabeledContent("Signed in as", value: gog.accountName ?? "GOG account")
+                        LabeledContent("Signed in as", value: gog.accountName ?? L("GOG account"))
                         Button("Sign out", role: .destructive) { gog.signOut() }
                     }
                 } else {

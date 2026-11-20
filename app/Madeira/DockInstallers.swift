@@ -1178,7 +1178,7 @@ enum DockInstallers {
                                 "key=\(run.hive == .machine ? "HKLM" : "HKCU")\\\(run.key) recorded=\(recorded) minimum=\(run.value)\(lastRun)")
         }
         if skipped {
-            note = "One-time installs skipped. To run them, choose Run at next start under One-time installs."
+            note = L("One-time installs skipped. To run them, choose Run at next start under One-time installs.")
         } else {
             note = DockInstallScripts.note(items)
             if installsOnly {
@@ -1279,7 +1279,7 @@ enum DockInstallers {
     static func poll(drive: URL, now: Date = Date()) -> String? {
         guard script != nil else { return nil }
         let file = drive.appendingPathComponent(resultName)
-        guard let contents = try? Data(contentsOf: file), contents.count <= 16384 else { return "Starting this game's one-time installs…" }
+        guard let contents = try? Data(contentsOf: file), contents.count <= 16384 else { return L("Starting this game's one-time installs…") }
         let results = DockInstallScripts.results(String(decoding: contents, as: UTF8.self))
         if let services = results.services, logged.insert("services").inserted {
             LogStore.shared.log("[dock-installers] services=\(services)", level: services == "failed" || services == "timeout" ? .error : .info)
@@ -1290,20 +1290,20 @@ enum DockInstallers {
         var failed: [String] = []
         for (index, status) in results.exits.sorted(by: { $0.key < $1.key }) {
             let ok = DockInstallScripts.Results.succeeded(status)
-            if !ok { failed.append("\(results.started[index] ?? "#\(index)") (exit \(status))") }
+            if !ok { failed.append(LF("%@ (exit %@)", results.started[index] ?? "#\(index)", String(status))) }
             guard logged.insert("e\(index)").inserted else { continue }
             LogStore.shared.log("[dock-installers] exit \(index)/\(results.total) program=\(results.started[index] ?? "") status=\(status) " +
                                 (ok ? "succeeded; recorded at the next start" : "failed; not recorded"), level: ok ? .info : .error)
         }
-        let failures = failed.isEmpty ? "" : "\nFailed: " + failed.joined(separator: ", ")
+        let failures = failed.isEmpty ? "" : "\n" + LF("Failed: %@", failed.joined(separator: ", "))
         if let running = results.running {
             if runningSince?.index != running { runningSince = (running, now) }
             let seconds = max(0, Int(now.timeIntervalSince(runningSince?.at ?? now)))
             let program = results.started[running] ?? ""
-            var text = "Running one-time install \(running) of \(max(results.total, running)): \(program)…"
+            var text = LF("Running one-time install %@ of %@: %@…", String(running), String(max(results.total, running)), program)
             if seconds >= stallSeconds {
-                let hint = "If its window no longer changes, it may have finished without closing. Ending the session leaves it unrecorded; Record as done under One-time installs records it."
-                text += " (\(seconds / 60) min)\n" + hint
+                let hint = L("If its window no longer changes, it may have finished without closing. Ending the session leaves it unrecorded; Record as done under One-time installs records it.")
+                text += " " + LF("(%@ min)", String(seconds / 60)) + "\n" + hint
                 if logged.insert("stall\(running)").inserted {
                     let line = "[dock-installers] still running \(running)/\(results.total) program=\(program) after \(seconds) s; the host waits for it (an installer window that never closes keeps the batch here)"
                     LogStore.shared.log(line, level: .error)
@@ -1311,7 +1311,7 @@ enum DockInstallers {
             }
             return text + failures
         }
-        guard results.ended else { return "Running this game's one-time installs…" + failures }
+        guard results.ended else { return L("Running this game's one-time installs…") + failures }
         let total = max(results.total, results.exits.count), succeeded = results.exits.count - failed.count
         if logged.insert("end").inserted {
             finishedAt = Date()
@@ -1319,7 +1319,7 @@ enum DockInstallers {
                                 (installsOnly ? "the session ends, the game starts after a restart" : "the host starts next"))
         }
         allSucceeded = total > 0 && succeeded == total
-        return "One-time installs finished: \(succeeded) of \(total) succeeded." + failures
+        return LF("One-time installs finished: %@ of %@ succeeded.", "\(succeeded)", "\(total)") + failures
     }
 
     /// madeira-bcd: the batch ended and every program in it succeeded (poll).
@@ -1329,7 +1329,7 @@ enum DockInstallers {
     /// owner's words (2026-10-12): all succeeded, or the count and the failed programs. `ended`
     /// is poll's text, nil when the batch never ended.
     static func restartNotice(_ ended: String?) -> String {
-        if allSucceeded { return "One-time installs completed successfully. Close Madeira and open it again to play the game." }
-        return (ended ?? "One-time installs ended.") + "\nClose Madeira and open it again to play the game."
+        if allSucceeded { return L("One-time installs completed successfully. Close Madeira and open it again to play the game.") }
+        return (ended ?? L("One-time installs ended.")) + "\n" + L("Close Madeira and open it again to play the game.")
     }
 }

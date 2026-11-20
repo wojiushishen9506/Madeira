@@ -95,6 +95,8 @@ require('[dock-reset]' in installers and 'still running' in installers and 'last
 game_src = dock[dock.index('/// A game Steam\'s client has installed'):dock.index('/// Madeira Dock: a small headless host')]
 stubs = r'''
 import Foundation
+func L(_ text: String) -> String { text }
+func LF(_ format: String, _ values: String...) -> String { String(format: format, arguments: values) }
 #if canImport(Glibc)
 import Glibc
 #else

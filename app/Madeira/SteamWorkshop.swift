@@ -310,12 +310,12 @@ final class SteamWorkshopModel: ObservableObject {
         let eresult: Int32
         var errorDescription: String? {
             switch eresult {
-            case 2: return "Steam could not do this right now (generic failure). Try again later."
-            case 9: return "Steam does not know this item. It may have been removed."
-            case 15: return "Steam refused: this item is not available to this account."
-            case 25: return "Steam's subscription limit was reached."
-            case 84: return "Steam is limiting requests. Wait a minute and try again."
-            default: return "Steam refused the request (error \(eresult))."
+            case 2: return L("Steam could not do this right now (generic failure). Try again later.")
+            case 9: return L("Steam does not know this item. It may have been removed.")
+            case 15: return L("Steam refused: this item is not available to this account.")
+            case 25: return L("Steam's subscription limit was reached.")
+            case 84: return L("Steam is limiting requests. Wait a minute and try again.")
+            default: return LF("Steam refused the request (error %@).", "\(eresult)")
             }
         }
     }
@@ -382,17 +382,17 @@ struct SteamWorkshopItemRow: View {
     }
 
     private var caption: String {
-        if item.isCollection { return "Collection: subscribe to its items on Steam" }
-        if item.banned { return "Removed by Steam" }
-        if item.result != 1 && item.result != 0 { return "Not available on Steam" }
-        if !item.isContent { return "Not game content" }
+        if item.isCollection { return L("Collection: subscribe to its items on Steam") }
+        if item.banned { return L("Removed by Steam") }
+        if item.result != 1 && item.result != 0 { return L("Not available on Steam") }
+        if !item.isContent { return L("Not game content") }
         let record = model.record(appID)
         if model.isOnDisk(item, appID: appID) {
             let size = record.entries[item.id]?.size ?? 0
             let installed = size > 0 ? "Installed · \(workshopBytes(size))" : "Installed"
             return record.needsUpdate(item) ? installed + " · Update available" : installed
         }
-        return item.fileSize > 0 ? "Not downloaded · \(workshopBytes(item.fileSize))" : "Not downloaded"
+        return item.fileSize > 0 ? LF("Not downloaded · %@", "\(workshopBytes(item.fileSize))") : "Not downloaded"
     }
 
     private var captionIsWarning: Bool {
@@ -564,7 +564,7 @@ struct SteamWorkshopBrowseView: View {
                 } else if items.count < total, failure == nil {
                     Button("Load more") { Task { await load(reset: false) } }
                 } else if items.isEmpty, failure == nil, page > 0 {
-                    Text(order == .search ? "Nothing found." : "This game's Workshop has no items to show.").foregroundStyle(.secondary)
+                    Text(order == .search ? L("Nothing found.") : "This game's Workshop has no items to show.").foregroundStyle(.secondary)
                 }
             } footer: {
                 if total > 0 { Text("\(items.count) of \(total)") }
@@ -629,7 +629,7 @@ struct SteamWorkshopHub: View {
         NavigationStack {
             List {
                 if !steam.workshopReady {
-                    Text(steam.signedIn ? "Not available while a game runs." : "Sign in to Steam (Settings › Steam) to use the Workshop.")
+                    Text(steam.signedIn ? L("Not available while a game runs.") : "Sign in to Steam (Settings › Steam) to use the Workshop.")
                         .foregroundStyle(.secondary)
                 }
                 if installed.isEmpty {
@@ -669,10 +669,10 @@ struct SteamWorkshopHub: View {
                     .clipShape(RoundedRectangle(cornerRadius: 6)).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(game.name)
-                    Text(count == 0 ? "No items installed" : count == 1 ? "1 item installed" : "\(count) items installed")
+                    Text(count == 0 ? L("No items installed") : count == 1 ? L("1 item installed") : "\(count) items installed")
                         .font(.caption).foregroundStyle(.secondary)
                     if pending > 0 {
-                        Text(pending == 1 ? "1 item to download" : "\(pending) items to download")
+                        Text(pending == 1 ? L("1 item to download") : "\(pending) items to download")
                             .font(.caption).foregroundStyle(.orange)
                     }
                 }

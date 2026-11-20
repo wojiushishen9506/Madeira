@@ -180,7 +180,9 @@ if not Path(SWIFTC).exists():
     print('SKIP: Swift compiler unavailable locally'); sys.exit(0)
 with tempfile.TemporaryDirectory(prefix='madeira-log-summary-') as directory:
     source = Path(directory) / 'main.swift'; binary = Path(directory) / 'check'
-    source.write_text('import Foundation\nenum MadeiraDock {\n' + report + '\n}\n'
+    source.write_text('import Foundation\nfunc L(_ text: String) -> String { text }\n'
+                      'func LF(_ format: String, _ values: String...) -> String { String(format: format, arguments: values) }\n'
+                      'enum MadeiraDock {\n' + report + '\n}\n'
                       + summary.replace('import Foundation\n', '', 1) + '\n' + checks)
     subprocess.run([SWIFTC, str(source), '-o', str(binary)], check=True)
     subprocess.run([str(binary), directory], check=True)

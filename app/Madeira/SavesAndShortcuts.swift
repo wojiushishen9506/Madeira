@@ -334,7 +334,7 @@ struct SavesSection: View {
                         busy = false
                         switch r {
                         case .success(let b):
-                            message = "\(b.files) files, \(ByteCountFormatter.string(fromByteCount: Int64(b.bytes), countStyle: .file))"
+                            message = LF("%@ files, %@", "\(b.files)", "\(ByteCountFormatter.string(fromByteCount: Int64(b.bytes), countStyle: .file))")
                                 + (b.leftOut > 0 ? "; \(b.leftOut) very large files left out" : "")
                             shareURL = b.url
                         case .failure(let e):
@@ -385,7 +385,7 @@ struct SavesSection: View {
                     DispatchQueue.main.async {
                         busy = false
                         switch r {
-                        case .success(let n): message = "\(n) files restored."
+                        case .success(let n): message = LF("%@ files restored.", "\(n)")
                         case .failure(let e): message = e.localizedDescription
                         }
                     }

@@ -66,8 +66,8 @@ struct WineGeckoPin {
     func refresh() { installed = Self.available }
 
     var status: String {
-        if let progress { return "Downloading… \(Int((progress * 100).rounded()))%" }
-        return installed ? "Wine Gecko \(WineGeckoPin.version) is ready" : "Not downloaded"
+        if let progress { return LF("Downloading… %@%%", String(Int((progress * 100).rounded()))) }
+        return installed ? LF("Wine Gecko %@ is ready", WineGeckoPin.version) : L("Not downloaded")
     }
 
     private func log(_ line: String) { LogStore.shared.log("[wine-gecko] " + line) }

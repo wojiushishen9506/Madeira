@@ -722,8 +722,8 @@ struct DeveloperPortal {
         var errorDescription: String? {
             switch self {
             case .unreachable: return SigningRefresh.unreachableMessage
-            case .pairing: return "This device no longer accepts Madeira's pairing file. Pair again under JIT setup, then refresh."
-            case .device(let why): return "This device did not take the new profile: \(why)."
+            case .pairing: return L("This device no longer accepts Madeira's pairing file. Pair again under JIT setup, then refresh.")
+            case .device(let why): return LF("This device did not take the new profile: %@.", "\(why)")
             }
         }
     }
@@ -763,11 +763,11 @@ struct SigningSettingsSection: View {
     @ObservedObject private var signing = SigningRefresh.shared
 
     private var signIn: String {
-        if signing.signInRefused { return "No longer accepted" }
+        if signing.signInRefused { return L("No longer accepted") }
         if let until = signing.account?.tokenExpires {
             return until > Date() ? "Until \(until.formatted(date: .abbreviated, time: .omitted))" : "Expired"
         }
-        return signing.account?.appleID == nil ? "From SideInstaller" : "Signed in"
+        return signing.account?.appleID == nil ? L("From SideInstaller") : "Signed in"
     }
 
     private var footer: String {
@@ -832,7 +832,7 @@ struct SigningRefreshOffer: ViewModifier {
     @ObservedObject private var signing = SigningRefresh.shared
 
     private var title: String {
-        if case .failed = signing.prompt { return "Couldn't Refresh Madeira" }
+        if case .failed = signing.prompt { return L("Couldn't Refresh Madeira") }
         return "Madeira's signing \(signing.summary)"
     }
 
@@ -840,7 +840,7 @@ struct SigningRefreshOffer: ViewModifier {
         if case .failed(let why) = signing.prompt { return why }
         if signing.signInRefused { return SigningRefresh.signInRefusedMessage }
         return LoopbackProbe.vpnInterfaceUp
-            ? "Madeira can renew it for another \(SigningProfile.week) days."
+            ? LF("Madeira can renew it for another %@ days.", "\(SigningProfile.week)")
             : "Connect LocalDevVPN and come back: Madeira then renews it for another \(SigningProfile.week) days."
     }
 

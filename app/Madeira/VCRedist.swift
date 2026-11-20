@@ -285,15 +285,15 @@ enum VCRedistInstaller {
     var complete: Bool { Self.packages.allSatisfy { installed[$0.arch].map { VCRedistInstaller.atLeastPinned($0) } ?? false } }
     var status: String {
         switch phase {
-        case .downloading(let f): return "Downloading… \(Int((f * 100).rounded()))%"
-        case .installing(let f): return "Unpacking and checking… \(Int((f * 100).rounded()))%"
+        case .downloading(let f): return LF("Downloading… %@%%", String(Int((f * 100).rounded())))
+        case .installing(let f): return LF("Unpacking and checking… %@%%", String(Int((f * 100).rounded())))
         case .idle:
             if complete {
                 let versions = Set(installed.values)
-                return "Installed" + (versions.count == 1 ? " (\(versions.first!))" : "")
+                return L("Installed") + (versions.count == 1 ? " (\(versions.first!))" : "")
             }
-            if installed.isEmpty { return "Not installed" }
-            return "Installed for " + installed.keys.sorted().joined(separator: ", ") + " only"
+            if installed.isEmpty { return L("Not installed") }
+            return LF("Installed for %@ only", installed.keys.sorted().joined(separator: ", "))
         }
     }
 
@@ -314,7 +314,7 @@ enum VCRedistInstaller {
     func install() {
         guard !busy else { return }
         guard wine_process_is_running() == 0, wineserver_is_running() == 0, LibraryModel.shared.current == nil else {
-            error = "A session is running. Try again when it has ended."; return
+            error = L("A session is running. Try again when it has ended."); return
         }
         error = nil
         phase = .downloading(0)

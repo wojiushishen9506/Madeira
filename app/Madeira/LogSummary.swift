@@ -426,6 +426,7 @@ enum LogSummary {
         0xC0000374: "damaged memory (heap corruption)",
         0xC00000FD: "a stack overflow",
         0xC0000017: "out of memory",
+        0xC0000417: "the program passed an invalid parameter to the Windows C runtime",
         0xC000041D: "a crash inside a window callback",
     ]
 

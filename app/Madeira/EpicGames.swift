@@ -85,7 +85,7 @@ struct EpicGamesSection: View {
                 if !mine.isEmpty {
                     LibraryCells(items: mine, layout: layout, width: width) { item, list, dense in cell(item, list: list, dense: dense) }
                 } else if epic.signedIn && !epic.refreshing && others.isEmpty && search.isEmpty {
-                    Text(epic.libraryUpdated == nil ? "Pull down to load your Epic Games library."
+                    Text(epic.libraryUpdated == nil ? L("Pull down to load your Epic Games library.")
                          : "No Windows games were found in this Epic Games library.").foregroundStyle(.secondary)
                 }
                 if epic.signedIn && !others.isEmpty {
@@ -257,7 +257,7 @@ struct EpicGameCell: View {
         case .queued: return "Waiting"
         case .active: return download.progress.phase == .verifying ? "Checking files" : "Downloading \(Int(download.progress.fraction * 100))%"
         case .paused: return "Paused"
-        case .failed: return "Download failed"
+        case .failed: return L("Download failed")
         }
     }
 
@@ -302,14 +302,14 @@ struct EpicDownloadStatus: View {
     private var caption: String {
         let p = download.progress
         switch download.state {
-        case .queued: return "Waiting to start…"
-        case .paused: return p.totalBytes > 0 ? "Paused at \(Int(p.fraction * 100))%" : "Paused"
+        case .queued: return L("Waiting to start…")
+        case .paused: return p.totalBytes > 0 ? LF("Paused at %@%%", "\(Int(p.fraction * 100))") : "Paused"
         case .failed(let message): return message
         case .active:
             switch p.phase {
-            case .preparing: return "Preparing download…"
-            case .verifying: return "Checking installed files… \(Int(p.fraction * 100))%"
-            case .finishing: return "Finishing…"
+            case .preparing: return L("Preparing download…")
+            case .verifying: return LF("Checking installed files… %@%%", String(describing: Int(p.fraction * 100)))
+            case .finishing: return L("Finishing…")
             case .downloading:
                 var parts = ["\(Int(p.fraction * 100))%", "\(epicBytes(p.doneBytes)) of \(epicBytes(p.totalBytes))"]
                 if p.bytesPerSecond > 0 {
@@ -485,7 +485,7 @@ struct EpicSettingsSection: View {
     var body: some View {
         Section {
             if epic.signedIn {
-                LabeledContent("Signed in as", value: epic.accountName ?? "Epic Games account")
+                LabeledContent("Signed in as", value: epic.accountName ?? L("Epic Games account"))
                 EpicCloudSettingRows()
                 Button("Sign out of Epic Games", role: .destructive) { confirmSignOut = true }
             } else {
@@ -522,7 +522,7 @@ struct EpicSignInView: View {
             Group {
                 if epic.signedIn {
                     Form {
-                        LabeledContent("Signed in as", value: epic.accountName ?? "Epic Games account")
+                        LabeledContent("Signed in as", value: epic.accountName ?? L("Epic Games account"))
                         Button("Sign out", role: .destructive) { epic.signOut() }
                     }
                 } else {
@@ -566,7 +566,7 @@ struct EpicSignInView: View {
         guard !busy else { return }
         guard let code = EpicAPI.authorizationCode(in: text) else {
             failure = EpicAPI.correctiveAction(in: text).map(EpicAPI.correctiveMessage)
-                ?? "This is not an Epic sign-in code. Copy the text Epic shows after you sign in."
+                ?? L("This is not an Epic sign-in code. Copy the text Epic shows after you sign in.")
             return
         }
         busy = true

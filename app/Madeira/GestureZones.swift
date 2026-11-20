@@ -417,7 +417,7 @@ struct GestureZonePanel: View {
             LayerButtons { mv in if let i { mv.apply(&z.zones, i) } }
             Text("Zones always sit under buttons.").font(.caption).foregroundStyle(.white.opacity(0.6))
             HStack {
-                Text(zone.kind == .swipe ? "Swipe length" : "Sensitivity").font(.subheadline)
+                Text(zone.kind == .swipe ? L("Swipe length") : "Sensitivity").font(.subheadline)
                 Slider(value: binding(\.sensitivity), in: 0.25...3)
             }
         }

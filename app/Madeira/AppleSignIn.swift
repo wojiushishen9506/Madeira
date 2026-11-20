@@ -225,7 +225,7 @@ private let secondFactorCallback: MadeiraAppleTwoFactorCallback = { context, req
         var errorDescription: String? {
             switch self {
             case .cancelled: return nil
-            case .anisette(let why): return "No anisette server gave an answer Apple takes (\(why)). Try again later."
+            case .anisette(let why): return LF("No anisette server gave an answer Apple takes (%@). Try again later.", "\(why)")
             case .failed(let why): return why
             }
         }
@@ -373,7 +373,7 @@ struct AppleSignInSheet: View {
             Form {
                 if let prompt { secondFactor(prompt) } else { credentials }
             }
-            .navigationTitle(prompt.map { $0.expectsCode ? "Two-Factor Code" : "Choose How to Get a Code" } ?? "Apple ID")
+            .navigationTitle(prompt.map { $0.expectsCode ? L("Two-Factor Code") : L("Choose How to Get a Code") } ?? "Apple ID")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -488,18 +488,18 @@ struct AppleSignInSheet: View {
 
     private func instructions(for prompt: TwoFactorPrompt) -> String {
         switch prompt.method {
-        case .device: return "Enter the code Apple just sent to your trusted devices."
-        case .sms: return "Enter the code Apple texted to \(prompt.selectedNumber?.number ?? "your phone")."
-        case .choose: return "Choose how Apple should send your verification code."
+        case .device: return L("Enter the code Apple just sent to your trusted devices.")
+        case .sms: return LF("Enter the code Apple texted to %@.", prompt.selectedNumber?.number ?? L("your phone"))
+        case .choose: return L("Choose how Apple should send your verification code.")
         }
     }
 
     private func status(for answer: TwoFactorAnswer, in prompt: TwoFactorPrompt) -> String {
         switch answer {
-        case .code: return "Checking the code…"
-        case .resend: return "Requesting a new code…"
-        case .devices: return "Sending a code to your devices…"
-        case .sms(let id): return "Texting a code to \(prompt.numbers.first { $0.id == id }?.number ?? "your phone")…"
+        case .code: return L("Checking the code…")
+        case .resend: return L("Requesting a new code…")
+        case .devices: return L("Sending a code to your devices…")
+        case .sms(let id): return LF("Texting a code to %@…", prompt.numbers.first { $0.id == id }?.number ?? L("your phone"))
         }
     }
 }

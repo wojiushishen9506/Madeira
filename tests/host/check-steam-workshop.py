@@ -238,7 +238,7 @@ if not SWIFTC:
 else:
     with tempfile.TemporaryDirectory(prefix='madeira-steam-workshop-') as tmp:
         tmp = Path(tmp)
-        (tmp / 'checks.swift').write_text(checks)
+        (tmp / 'checks.swift').write_text('func L(_ text: String) -> String { text }\n' + checks)
         exe = tmp / 'check'
         build = subprocess.run([SWIFTC, '-parse-as-library', '-swift-version', '5', '-sanitize=address', '-o', str(exe),
                                 str(tmp / 'checks.swift'), str(app / 'SteamWorkshopFiles.swift'),

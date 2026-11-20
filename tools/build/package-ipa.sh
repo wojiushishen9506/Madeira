@@ -43,6 +43,8 @@ xcodebuild \
 
 [[ -d "$APP" ]] || { echo "ERROR: xcodebuild succeeded but Madeira.app is missing" >&2; exit 1; }
 
+# Match the official release. Visual C++ is available from setup and Settings.
+rm -rf -- "$APP/x86_64-vcruntime"
 python3 "$ROOT/tools/build/runtime-components.py" bundle "$APP"
 
 # Preserve Madeira's requested JIT/debug entitlements in the IPA. SideStore will
@@ -56,7 +58,6 @@ bundle_required=(
   "$APP/Madeira"
   "$APP/prefix-template.tar.gz"
   "$APP/arm64ec-windows/xtajit64.dll"
-  "$APP/x86_64-vcruntime/vcruntime140.dll"
 )
 for path in "${bundle_required[@]}"; do
   [[ -e "$path" ]] || { echo "ERROR: required bundle resource missing: $path" >&2; exit 1; }

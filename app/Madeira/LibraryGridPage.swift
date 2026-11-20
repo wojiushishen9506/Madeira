@@ -304,7 +304,7 @@ struct LibraryGridPageModel: Equatable {
                 for item in cards { steam[item.id] = item }
                 add(.grid(id: "steam.installed", cards: cards.map { .steam($0.id) }))
             } else if signedIn && !account.refreshing && groups.notInstalled.isEmpty && inputs.search.isEmpty {
-                add(.fixed(.note(id: "steam", text: account.libraryUpdated == nil ? "Pull down to load your Steam library."
+                add(.fixed(.note(id: "steam", text: account.libraryUpdated == nil ? L("Pull down to load your Steam library.")
                                  : "No Windows games were found in this Steam library.")))
             }
         }

@@ -67,7 +67,9 @@ print("PASS: Dock report completion, CRLF, fingerprints, adapter version, callba
 '''
 with tempfile.TemporaryDirectory(prefix='madeira-dock-report-') as directory:
     source = Path(directory) / 'main.swift'; binary = Path(directory) / 'check'
-    source.write_text('import Foundation\nenum MadeiraDock {\n' + parser + '\n}\n' + checks)
+    source.write_text('import Foundation\nfunc L(_ text: String) -> String { text }\n'
+                      'func LF(_ format: String, _ values: String...) -> String { String(format: format, arguments: values) }\n'
+                      'enum MadeiraDock {\n' + parser + '\n}\n' + checks)
     subprocess.run([SWIFTC, str(source), '-o', str(binary)], check=True)
     subprocess.run([str(binary)], check=True)
 

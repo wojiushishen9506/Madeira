@@ -1,0 +1,23 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira uses the local network to pair with this device for JIT, without a computer, and to download Steam games from a PC on this network."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 使用本地网络在无需电脑的情况下与此设备配对以启用 JIT，也可从同一网络中的电脑下载 Steam 游戏。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

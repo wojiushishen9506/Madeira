@@ -544,7 +544,7 @@ final class SteamOwnedLibrary: ObservableObject {
 
     private func handleSessionError(_ error: Error, context: String, report: Bool = true) {
         if case SteamError.logonDenied(let code) = error, SteamError.signInExpiredCodes.contains(code) {
-            self.error = "Your Steam sign-in is no longer valid. Sign out and sign in again in Settings › Steam."
+            self.error = L("Your Steam sign-in is no longer valid. Sign out and sign in again in Settings › Steam.")
             SteamLog.event("[steam-account] stored sign-in rejected code=\(code)")
             return
         }
@@ -1092,14 +1092,14 @@ final class SteamOwnedLibrary: ObservableObject {
         }
         func failure() -> String {
             if case .failed(let message)? = cloud[appID]?.phase { return message }
-            return cloud[appID]?.problem ?? "Steam Cloud could not be reached."
+            return cloud[appID]?.problem ?? L("Steam Cloud could not be reached.")
         }
         // The game is still running and may be writing: go on once two looks,
         // 2 s apart, find the same device files.
         var plan: SteamCloudPlan?
         var seen: [String: Data] = [:]
         for round in 0..<5 {
-            cloudQuit = .working(round == 0 ? "Checking saves…" : "Waiting for the game to finish saving…")
+            cloudQuit = .working(round == 0 ? L("Checking saves…") : "Waiting for the game to finish saving…")
             guard let look = await checkCloud(appID) else {
                 SteamLog.event("[steam-cloud] app=\(appID) quit-upload: check failed")
                 cloudQuit = .failed(failure()); return
@@ -1298,11 +1298,11 @@ final class SteamOwnedLibrary: ObservableObject {
     func install(_ appID: Int, library: String? = nil) {
         guard Self.enabled else { return }
         guard !deleting.contains(appID), GameMover.shared.moving == nil else { error = "Wait for the file operation to finish."; return }
-        guard signedIn else { error = "Sign in to Steam to download games."; return }
+        guard signedIn else { error = L("Sign in to Steam to download games."); return }
         if active?.id == appID || queue.contains(appID) { return }
         let installed = SteamGamesModel.shared.games.first(where: { $0.id == appID })?.library
         let target = ExternalInstallTarget.select(existing: targets[appID], installed: installed, requested: library, fallback: Self.installLibrary)
-        guard SteamInstallPaths.isManaged(library: target) else { error = "The install library is invalid."; return }
+        guard SteamInstallPaths.isManaged(library: target) else { error = L("The install library is invalid."); return }
         setTarget(appID, target)
         if inSession {
             resumeAfterSession.insert(appID); downloads[appID] = Download(state: .paused); return
@@ -1344,7 +1344,7 @@ final class SteamOwnedLibrary: ObservableObject {
                 try SteamInstallFiles.delete(appID: appID, folderName: game.folderName, steamApps: apps)
                 setTarget(appID, nil)
                 SteamLog.event("[steam-depot] cancelled app=\(appID) partial-files-removed=1")
-            } catch { self.error = "The partial install was kept: " + error.localizedDescription }
+            } catch { self.error = L("The partial install was kept: ") + error.localizedDescription }
         }
     }
 
@@ -1378,7 +1378,7 @@ final class SteamOwnedLibrary: ObservableObject {
                 setTarget(game.id, nil)
                 SteamGamesModel.shared.refresh()
                 SteamLog.event("[steam-depot] uninstalled app=\(game.id)")
-            } catch { self.error = "The install could not be removed: " + error.localizedDescription }
+            } catch { self.error = L("The install could not be removed: ") + error.localizedDescription }
         }
     }
 
@@ -1452,7 +1452,7 @@ final class SteamOwnedLibrary: ObservableObject {
                 handleSessionError(error, context: "depot")
                 outcome = .failed(SteamSignIn.message(error))
             } else if let missing = error as? SteamDriveMissing {
-                let message = "\(missing.name) is not connected. Plug it in and restart Madeira, or choose This iPhone under Settings › External drives."
+                let message = LF("%@ is not connected. Plug it in and restart Madeira, or choose This iPhone under Settings › External drives.", "\(missing.name)")
                 downloads[appID]?.state = .failed(message)
                 SteamLog.event("[steam-depot] failed app=\(appID) reason=drive-missing")
                 outcome = .failed(message)
