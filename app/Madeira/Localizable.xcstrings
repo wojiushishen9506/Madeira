@@ -47788,28 +47788,6 @@
         }
       }
     },
-    "Madeira recommends its standard settings for the Desktop (%@ config lines). Resetting replaces the Desktop's config.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Madeira 推荐在桌面使用默认设置（%1$@ 行）。重置会替换桌面配置。"
-          }
-        }
-      }
-    },
-    "Madeira has no specific settings for this game. Resetting applies its standard settings (%@ config lines).": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Madeira 暂无此游戏的专用设置。重置会应用默认配置（%1$@ 行）。"
-          }
-        }
-      }
-    },
     "Madeira's recommended settings for %@: %@ config lines%@. Resetting replaces this game's config and these switches with them.": {
       "extractionState": "manual",
       "localizations": {
@@ -47971,6 +47949,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "已略过 %1$@ 个超大文件"
+          }
+        }
+      }
+    },
+    "%@ config lines": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 行配置"
+          }
+        }
+      }
+    },
+    "Madeira recommends its standard settings for the Desktop: %@ (the emulator's code-patch report off, without which many games close at start). Resetting replaces the Desktop's config with them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 推荐在桌面使用默认设置（%1$@）。这些设置会关闭模拟器的代码补丁报告，以免部分游戏在启动时退出。重置会替换桌面配置。"
+          }
+        }
+      }
+    },
+    "Madeira has no list for this game yet, so it recommends its standard settings: %@ (the emulator's code-patch report off, without which many games close at start). Resetting replaces this game's config with them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 暂无此游戏的专用设置，推荐使用默认设置（%1$@）。这些设置会关闭模拟器的代码补丁报告，以免部分游戏在启动时退出。重置会替换此游戏的配置。"
           }
         }
       }

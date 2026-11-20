@@ -95,9 +95,10 @@ extension GameRecommendations {
         guard let rec else { return L("Madeira has no recommended settings for this game yet; resetting empties this game's config.") }
         let lines = GameProfile.parse(rec.fileText).count
         if rec.id == standard.id {
+            let count = lines == 1 ? L("1 config line") : LF("%@ config lines", String(lines))
             return desktop
-                ? LF("Madeira recommends its standard settings for the Desktop (%@ config lines). Resetting replaces the Desktop's config.", String(lines))
-                : LF("Madeira has no specific settings for this game. Resetting applies its standard settings (%@ config lines).", String(lines))
+                ? LF("Madeira recommends its standard settings for the Desktop: %@ (the emulator's code-patch report off, without which many games close at start). Resetting replaces the Desktop's config with them.", count)
+                : LF("Madeira has no list for this game yet, so it recommends its standard settings: %@ (the emulator's code-patch report off, without which many games close at start). Resetting replaces this game's config with them.", count)
         }
         let summary = rec.switchSummary
         let switches = summary.isEmpty ? "" : "; " + summary
