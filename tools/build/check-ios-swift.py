@@ -8,7 +8,18 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 project = (root / 'app/Madeira.xcodeproj/project.pbxproj').read_text()
 phase = project.split('/* Begin PBXSourcesBuildPhase section */', 1)[1].split('};', 1)[0]
-swift_files = [f'app/Madeira/{name}' for name in re.findall(r'/\* ([^*\n]+\.swift) in Sources \*/', phase)]
+names = re.findall(r'/\* ([^*\n]+\.swift) in Sources \*/', phase)
+tracked = subprocess.check_output(['git', 'ls-files', 'app/Madeira'], cwd=root, text=True).splitlines()
+swift_files = []
+for name in names:
+    relative = f'app/Madeira/{name}'
+    if relative in tracked:
+        swift_files.append(relative)
+        continue
+    matches = [path for path in tracked if Path(path).name == name]
+    if len(matches) != 1:
+        raise SystemExit(f'Madeira target: expected one source for {name}: {matches}')
+    swift_files.append(matches[0])
 if 'app/Madeira/Library.swift' not in swift_files or 'app/Madeira/MadeiraApp.swift' not in swift_files:
     raise SystemExit('The Madeira app sources could not be located')
 missing = [path for path in swift_files if not (root / path).is_file()]
