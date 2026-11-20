@@ -47776,6 +47776,204 @@
           }
         }
       }
+    },
+    "Madeira has no recommended settings for this game yet; resetting empties this game's config.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 暂无此游戏的推荐配置。重置会清空此游戏的配置。"
+          }
+        }
+      }
+    },
+    "Madeira recommends its standard settings for the Desktop (%@ config lines). Resetting replaces the Desktop's config.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 推荐在桌面使用默认设置（%1$@ 行）。重置会替换桌面配置。"
+          }
+        }
+      }
+    },
+    "Madeira has no specific settings for this game. Resetting applies its standard settings (%@ config lines).": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 暂无此游戏的专用设置。重置会应用默认配置（%1$@ 行）。"
+          }
+        }
+      }
+    },
+    "Madeira's recommended settings for %@: %@ config lines%@. Resetting replaces this game's config and these switches with them.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 为 %1$@ 推荐的配置包含 %2$@ 行%3$@。重置会应用这些配置和开关。"
+          }
+        }
+      }
+    },
+    "Madeira has no recommended settings for this game yet. Empty this game's config?": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Madeira 暂无此游戏的推荐配置。要清空游戏的配置吗？"
+          }
+        }
+      }
+    },
+    "Replace the Desktop's config with Madeira's standard settings? Changes you made to it are lost.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 Madeira 的默认设置覆盖桌面配置吗？手动调整将丢失。"
+          }
+        }
+      }
+    },
+    "Replace this game's config with Madeira's standard settings? Changes you made to it are lost.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 Madeira 的默认设置覆盖此游戏的配置吗？手动调整将丢失。"
+          }
+        }
+      }
+    },
+    "Replace this game's config and switches with Madeira's recommended settings for %@? Changes you made to them are lost.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用 Madeira 为 %1$@ 推荐的设置覆盖此游戏的配置和开关吗？手动调整将丢失。"
+          }
+        }
+      }
+    },
+    "Downloaded %@ save files.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载 %1$@ 个存档文件。"
+          }
+        }
+      }
+    },
+    "Backed up %@ replaced save files on this device.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已备份此设备上被替换的 %1$@ 个存档文件。"
+          }
+        }
+      }
+    },
+    "Uploaded %@ save files as a new snapshot.": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已将 %1$@ 个存档文件上传为新的快照。"
+          }
+        }
+      }
+    },
+    "Wine's own .NET is used": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 Wine 自带的 .NET"
+          }
+        }
+      }
+    },
+    "Windows Installer package": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Windows Installer 安装包"
+          }
+        }
+      }
+    },
+    "32-bit installer": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "32 位安装程序"
+          }
+        }
+      }
+    },
+    "fills this screen": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "填满屏幕"
+          }
+        }
+      }
+    },
+    "bars above and below": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上下留黑边"
+          }
+        }
+      }
+    },
+    "bars at the sides": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左右留黑边"
+          }
+        }
+      }
+    },
+    "%@ very large files left out": {
+      "extractionState": "manual",
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已略过 %1$@ 个超大文件"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

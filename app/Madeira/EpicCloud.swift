@@ -278,8 +278,8 @@ import SwiftUI
             next.device = after
             next.verdict = .inSync
             show(app, next)
-            update(app) { $0.note = "Downloaded \(result.files) save file\(result.files == 1 ? "" : "s")."
-                + (result.backedUp > 0 ? " \(result.backedUp) replaced on this device \(result.backedUp == 1 ? "was" : "were") backed up." : "") }
+            update(app) { $0.note = LF("Downloaded %@ save files.", String(result.files))
+                + (result.backedUp > 0 ? " " + LF("Backed up %@ replaced save files on this device.", String(result.backedUp)) : "") }
         } catch {
             fail(app, error)
         }
@@ -300,7 +300,7 @@ import SwiftUI
             next.verdict = .inSync
             show(app, next)
             update(app) { $0.cloudFiles = result.files; $0.cloudDate = EpicCloudSaves.date(ofBuildVersion: result.version)
-                $0.note = "Uploaded \(result.files) save file\(result.files == 1 ? "" : "s") as a new snapshot." }
+                $0.note = LF("Uploaded %@ save files as a new snapshot.", String(result.files)) }
         } catch {
             fail(app, error)
         }

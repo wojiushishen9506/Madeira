@@ -335,7 +335,7 @@ struct SavesSection: View {
                         switch r {
                         case .success(let b):
                             message = LF("%@ files, %@", "\(b.files)", "\(ByteCountFormatter.string(fromByteCount: Int64(b.bytes), countStyle: .file))")
-                                + (b.leftOut > 0 ? "; \(b.leftOut) very large files left out" : "")
+                                + (b.leftOut > 0 ? " · " + LF("%@ very large files left out", String(b.leftOut)) : "")
                             shareURL = b.url
                         case .failure(let e):
                             message = e.localizedDescription

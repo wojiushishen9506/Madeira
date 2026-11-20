@@ -258,7 +258,7 @@ enum ResolutionChoices {
         for (name, sizes) in [("16:9 widescreen", widescreen), ("4:3 classic", classic)] {
             let (w0, h0) = sizes[0]
             let r = Double(w0) / Double(h0) / aspect(s)
-            let note = fills(w0, h0, screen: s) ? "fills this screen" : (r > 1 ? "bars above and below" : "bars at the sides")
+            let note = fills(w0, h0, screen: s) ? L("fills this screen") : (r > 1 ? L("bars above and below") : L("bars at the sides"))
             // A size already offered in this screen's shape (1280x720 on a 16:9 phone) is listed once.
             let rest = sizes.filter { size in !own.contains(where: { $0.w == size.0 && $0.h == size.1 }) }
             if !rest.isEmpty {

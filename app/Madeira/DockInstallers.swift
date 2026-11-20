@@ -905,10 +905,10 @@ enum DockInstallers {
     /// as GameNative (Wine on Android) does. Newer .NET (Core, 5+) setups still run.
     nonisolated static func runnable(_ process: SteamInstallProcess, drive: URL, has32Bit: Bool, hasMsiexec: Bool,
                                      skipDotNet: Bool = false) -> String? {
-        if skipDotNet && isDotNetFramework(process) { return "Wine's own .NET is used" }
-        if process.executable.lowercased().hasSuffix(".msi") { return hasMsiexec ? nil : "Windows Installer package" }
+        if skipDotNet && isDotNetFramework(process) { return L("Wine's own .NET is used") }
+        if process.executable.lowercased().hasSuffix(".msi") { return hasMsiexec ? nil : L("Windows Installer package") }
         guard let file = resolve(process.executable, drive: drive), let machine = machine(file) else { return nil }
-        return machine == 0x14c && !has32Bit ? "32-bit installer" : nil
+        return machine == 0x14c && !has32Bit ? L("32-bit installer") : nil
     }
 
     /// A .NET Framework 2.0-4.x setup: its file name (as Microsoft and
