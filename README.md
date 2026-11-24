@@ -13,6 +13,17 @@
 Madeira runs Windows PC games on an iPhone, with no jailbreak. Games run as they
 are, unmodified, inside a single iOS app.
 
+## 简体中文版 0.2.0
+
+这是基于 Madeira 0.2.0 的社区汉化版。
+
+- 提供简体中文界面，可在应用内切换界面语言。
+- 手动导入的游戏找不到可执行文件时，详情页提供「从游戏库移除」。该操作只移除库条目。
+- 补齐 Wine 的简体中文代码页 936，修复中文界面下 ConEX 启动时报 `0xC0000417` 的问题。
+
+修复已在 iOS 27.0.1 的 iPhone 上通过桌面独立安装验证。LiveContainer 内的安装和启动待复测。
+从 [本仓库的 Releases](https://github.com/wojiushishen9506/Madeira/releases) 下载 IPA 后，使用自己的签名安装。
+
 > [!NOTE]
 > Madeira is an active research project. Many games start and some play well,
 > but performance and compatibility vary from game to game, and things change
